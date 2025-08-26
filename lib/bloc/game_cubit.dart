@@ -23,6 +23,7 @@ class GameState {
   final List<Dot> dots;
   final int score;
   final int lives;
+  final int maxLives;
   final double speedMultiplier;
   final bool isGameOver;
 
@@ -30,6 +31,7 @@ class GameState {
     required this.dots,
     required this.score,
     required this.lives,
+    required this.maxLives,
     required this.speedMultiplier,
     required this.isGameOver,
   });
@@ -50,6 +52,7 @@ class GameState {
       dots: dots,
       score: 0,
       lives: 5,
+      maxLives: 5,
       speedMultiplier: 1.0,
       isGameOver: false,
     );
@@ -59,6 +62,7 @@ class GameState {
     List<Dot>? dots,
     int? score,
     int? lives,
+    int? maxLives,
     double? speedMultiplier,
     bool? isGameOver,
   }) {
@@ -66,6 +70,7 @@ class GameState {
       dots: dots ?? this.dots,
       score: score ?? this.score,
       lives: lives ?? this.lives,
+      maxLives: maxLives ?? this.maxLives,
       speedMultiplier: speedMultiplier ?? this.speedMultiplier,
       isGameOver: isGameOver ?? this.isGameOver,
     );

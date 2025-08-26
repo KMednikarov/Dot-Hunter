@@ -48,18 +48,19 @@ class _GameView extends StatelessWidget {
         listenWhen: (previous, current) =>
             !previous.isGameOver && current.isGameOver,
         listener: (context, state) {
+          final gameCubit = context.read<GameCubit>();
           showDialog(
             context: context,
             barrierDismissible: false,
-            builder: (context) {
+            builder: (dialogContext) {
               return AlertDialog(
                 title: const Text('Game Over'),
                 content: Text('Score: ${state.score}'),
                 actions: [
                   TextButton(
                     onPressed: () {
-                      Navigator.of(context).pop();
-                      Navigator.of(context).push(
+                      Navigator.of(dialogContext).pop();
+                      Navigator.of(dialogContext).push(
                         MaterialPageRoute(
                           builder: (_) => const LeaderboardPage(),
                         ),
@@ -69,8 +70,8 @@ class _GameView extends StatelessWidget {
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.of(context).pop();
-                      context.read<GameCubit>().restart();
+                      Navigator.of(dialogContext).pop();
+                      gameCubit.restart();
                     },
                     child: const Text('Play Again'),
                   ),

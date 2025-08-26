@@ -212,12 +212,21 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
                 Positioned(
                   top: 10,
                   left: 10,
-                  child: Text('Score: '+_score.toString()),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: List.generate(
+                      _lives,
+                      (index) => const Icon(
+                        Icons.favorite,
+                        color: Colors.red,
+                      ),
+                    ),
+                  ),
                 ),
                 Positioned(
                   top: 10,
                   right: 10,
-                  child: Text('Lives: '+_lives.toString()),
+                  child: Text('Score: '+_score.toString()),
                 ),
               ],
             ),

@@ -1,4 +1,9 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'leaderboard_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -7,116 +12,218 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Dot Hunter',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const GamePage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class Dot {
+  Offset position;
+  Offset velocity;
+  final Color color;
+  final double radius;
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  Dot({
+    required this.position,
+    required this.velocity,
+    required this.color,
+    this.radius = 15,
+  });
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class GamePage extends StatefulWidget {
+  const GamePage({super.key});
 
-  void _incrementCounter() {
+  @override
+  State<GamePage> createState() => _GamePageState();
+}
+
+class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin {
+  final Random _rand = Random();
+  final int _dotCount = 6;
+  late final Ticker _ticker;
+  final List<Dot> _dots = [];
+  int _score = 0;
+  int _lives = 5;
+  double _speedMultiplier = 1.0;
+  bool _isGameOver = false;
+  Size _areaSize = Size.zero;
+
+  @override
+  void initState() {
+    super.initState();
+    _initDots();
+    _ticker = createTicker(_onTick)..start();
+  }
+
+  void _initDots() {
+    _dots.clear();
+    for (int i = 0; i < _dotCount; i++) {
+      final isRed = i == 0;
+      _dots.add(
+        Dot(
+          position: Offset(_rand.nextDouble() * 300, _rand.nextDouble() * 500),
+          velocity: Offset((_rand.nextDouble() * 2 - 1) * 2, (_rand.nextDouble() * 2 - 1) * 2),
+          color: isRed ? Colors.red : Color.fromARGB(255, _rand.nextInt(256), _rand.nextInt(256), _rand.nextInt(256)),
+          radius: 15,
+        ),
+      );
+    }
+  }
+
+  void _onTick(Duration elapsed) {
+    if (_areaSize == Size.zero || _isGameOver) return;
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      for (final dot in _dots) {
+        dot.position = dot.position + dot.velocity * _speedMultiplier;
+        if (dot.position.dx <= dot.radius || dot.position.dx >= _areaSize.width - dot.radius) {
+          dot.velocity = Offset(-dot.velocity.dx, dot.velocity.dy);
+        }
+        if (dot.position.dy <= dot.radius || dot.position.dy >= _areaSize.height - dot.radius) {
+          dot.velocity = Offset(dot.velocity.dx, -dot.velocity.dy);
+        }
+      }
+    });
+  }
+
+  void _handleTap(TapUpDetails details) {
+    if (_isGameOver) return;
+    final tapPos = details.localPosition;
+    bool hitRed = false;
+    bool hitAny = false;
+    for (final dot in _dots) {
+      final dist = (dot.position - tapPos).distance;
+      if (dist <= dot.radius) {
+        hitAny = true;
+        if (dot.color == Colors.red) {
+          hitRed = true;
+        }
+        break;
+      }
+    }
+
+    if (hitRed) {
+      setState(() {
+        _score++;
+        _speedMultiplier *= 1.1;
+      });
+    } else {
+      setState(() {
+        _lives--;
+        if (_lives <= 0) {
+          _isGameOver = true;
+          _ticker.stop();
+          _onGameOver();
+        }
+      });
+    }
+  }
+
+  Future<void> _onGameOver() async {
+    final prefs = await SharedPreferences.getInstance();
+    final scores = prefs.getStringList('scores') ?? [];
+    scores.add(_score.toString());
+    await prefs.setStringList('scores', scores);
+
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Game Over'),
+          content: Text('Score: '+_score.toString()),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const LeaderboardPage()),
+                );
+              },
+              child: const Text('Leaderboard'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _restart();
+              },
+              child: const Text('Play Again'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _restart() {
+    setState(() {
+      _score = 0;
+      _lives = 5;
+      _speedMultiplier = 1.0;
+      _isGameOver = false;
+      _initDots();
+      _ticker.start();
     });
   }
 
   @override
+  void dispose() {
+    _ticker.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: const Text('Dot Hunter'),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          _areaSize = Size(constraints.maxWidth, constraints.maxHeight);
+          return GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTapUp: _handleTap,
+            child: Stack(
+              children: [
+                ..._dots.map(
+                  (dot) => Positioned(
+                    left: dot.position.dx - dot.radius,
+                    top: dot.position.dy - dot.radius,
+                    child: Container(
+                      width: dot.radius * 2,
+                      height: dot.radius * 2,
+                      decoration: BoxDecoration(
+                        color: dot.color,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 10,
+                  left: 10,
+                  child: Text('Score: '+_score.toString()),
+                ),
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: Text('Lives: '+_lives.toString()),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
+

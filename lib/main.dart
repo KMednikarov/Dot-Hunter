@@ -111,10 +111,12 @@ class _GameView extends StatelessWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: List.generate(
-                            state.lives,
-                            (index) => const Icon(
+                            state.maxLives,
+                            (index) => Icon(
                               Icons.favorite,
-                              color: Colors.red,
+                              color: index < state.lives
+                                  ? Colors.red
+                                  : Colors.grey,
                             ),
                           ),
                         ),

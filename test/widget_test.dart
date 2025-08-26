@@ -5,6 +5,8 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -31,6 +33,26 @@ void main() {
     final nonRedDot =
         cubit.state.dots.firstWhere((dot) => dot.color != Colors.red);
     cubit.handleTap(nonRedDot.position);
+    await tester.pump();
+
+    final hearts =
+        tester.widgetList<Icon>(find.byIcon(Icons.favorite)).toList();
+    final redHearts =
+        hearts.where((icon) => icon.color == Colors.red).length;
+    final greyHearts =
+        hearts.where((icon) => icon.color == Colors.grey).length;
+
+    expect(redHearts, 4);
+    expect(greyHearts, 1);
+  });
+
+  testWidgets('Tapping empty space loses a life', (WidgetTester tester) async {
+    await tester.pumpWidget(const MyApp());
+
+    final context = tester.element(find.byType(Scaffold));
+    final cubit = BlocProvider.of<GameCubit>(context);
+
+    cubit.handleTap(const Offset(-100, -100));
     await tester.pump();
 
     final hearts =

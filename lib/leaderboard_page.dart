@@ -1,49 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class LeaderboardPage extends StatefulWidget {
+import 'bloc/leaderboard_cubit.dart';
+
+class LeaderboardPage extends StatelessWidget {
   const LeaderboardPage({super.key});
 
   @override
-  State<LeaderboardPage> createState() => _LeaderboardPageState();
-}
-
-class _LeaderboardPageState extends State<LeaderboardPage> {
-  List<int> _scores = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _loadScores();
-  }
-
-  Future<void> _loadScores() async {
-    final prefs = await SharedPreferences.getInstance();
-    final stored = prefs.getStringList('scores') ?? [];
-    setState(() {
-      _scores = stored.map(int.parse).toList()..sort((b, a) => a.compareTo(b));
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Leaderboard'),
+    return BlocProvider(
+      create: (_) => LeaderboardCubit(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Leaderboard'),
+        ),
+        body: BlocBuilder<LeaderboardCubit, List<int>>(
+          builder: (context, scores) {
+            return scores.isEmpty
+                ? const Center(child: Text('No scores yet'))
+                : ListView.builder(
+                    itemCount: scores.length,
+                    itemBuilder: (context, index) {
+                      final score = scores[index];
+                      return ListTile(
+                        leading: Text('#${index + 1}'),
+                        title: Text('Score: $score'),
+                      );
+                    },
+                  );
+          },
+        ),
       ),
-      body: _scores.isEmpty
-          ? const Center(child: Text('No scores yet'))
-          : ListView.builder(
-              itemCount: _scores.length,
-              itemBuilder: (context, index) {
-                final score = _scores[index];
-                return ListTile(
-                  leading: Text('#'+(index + 1).toString()),
-                  title: Text('Score: '+score.toString()),
-                );
-              },
-            ),
     );
   }
 }
-

@@ -9,6 +9,7 @@ class LeaderboardCubit extends Cubit<List<int>> {
   Future<void> loadScores() async {
     final prefs = await SharedPreferences.getInstance();
     final stored = prefs.getStringList('scores') ?? [];
-    emit(stored.map(int.parse).toList()..sort((b, a) => a.compareTo(b)));
+    // Sort scores in descending order so higher scores appear first.
+    emit(stored.map(int.parse).toList()..sort((a, b) => b.compareTo(a)));
   }
 }

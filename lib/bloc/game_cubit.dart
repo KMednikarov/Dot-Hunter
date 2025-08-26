@@ -114,11 +114,9 @@ class GameCubit extends Cubit<GameState> {
   void handleTap(Offset tapPos) async {
     if (state.isGameOver) return;
     bool hitRed = false;
-    bool hitAny = false;
     for (final dot in state.dots) {
       final dist = (dot.position - tapPos).distance;
       if (dist <= dot.radius) {
-        hitAny = true;
         if (dot.color == Colors.red) {
           hitRed = true;
         }
@@ -131,7 +129,7 @@ class GameCubit extends Cubit<GameState> {
         score: state.score + 1,
         speedMultiplier: state.speedMultiplier * 1.1,
       ));
-    } else if (hitAny) {
+    } else {
       final lives = state.lives - 1;
       if (lives <= 0) {
         await _saveScore();

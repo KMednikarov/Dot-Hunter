@@ -60,11 +60,13 @@ class _GameView extends StatelessWidget {
                   TextButton(
                     onPressed: () {
                       Navigator.of(dialogContext).pop();
-                      Navigator.of(dialogContext).push(
+                      Navigator.of(dialogContext)
+                          .push(
                         MaterialPageRoute(
                           builder: (_) => const LeaderboardPage(),
                         ),
-                      );
+                      )
+                          .then((_) => gameCubit.restart());
                     },
                     child: const Text('Leaderboard'),
                   ),

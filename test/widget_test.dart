@@ -17,6 +17,8 @@ import 'package:dot_hunter/bloc/game_cubit.dart';
 void main() {
   testWidgets('Game starts with score 0 and 5 lives', (WidgetTester tester) async {
     await tester.pumpWidget(const MyApp());
+    await tester.tap(find.text('Start Game'));
+    await tester.pumpAndSettle();
 
     expect(find.text('Score: 0'), findsOneWidget);
     expect(find.byIcon(Icons.favorite), findsNWidgets(5));
@@ -24,12 +26,12 @@ void main() {
 
   testWidgets('Losing a life greys out one heart', (WidgetTester tester) async {
     await tester.pumpWidget(const MyApp());
+    await tester.tap(find.text('Start Game'));
+    await tester.pumpAndSettle();
 
-    // Access the GameCubit through the context of the Scaffold.
-    final context = tester.element(find.byType(Scaffold));
+    final context = tester.element(find.text('Score: 0'));
     final cubit = BlocProvider.of<GameCubit>(context);
 
-    // Tap on a non-red dot to lose a life.
     final nonRedDot =
         cubit.state.dots.firstWhere((dot) => dot.color != Colors.red);
     cubit.handleTap(nonRedDot.position);
@@ -48,8 +50,10 @@ void main() {
 
   testWidgets('Tapping empty space loses a life', (WidgetTester tester) async {
     await tester.pumpWidget(const MyApp());
+    await tester.tap(find.text('Start Game'));
+    await tester.pumpAndSettle();
 
-    final context = tester.element(find.byType(Scaffold));
+    final context = tester.element(find.text('Score: 0'));
     final cubit = BlocProvider.of<GameCubit>(context);
 
     cubit.handleTap(const Offset(-100, -100));

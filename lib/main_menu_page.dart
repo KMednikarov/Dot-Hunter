@@ -2,43 +2,96 @@ import 'package:flutter/material.dart';
 
 import 'game_page.dart';
 import 'leaderboard_page.dart';
+import 'settings_page.dart';
 
-class MainMenuPage extends StatelessWidget {
-  const MainMenuPage({super.key});
+class MainMenuPage extends StatefulWidget {
+  final bool isDark;
+  final ValueChanged<bool> onThemeChanged;
+
+  const MainMenuPage({super.key, required this.onThemeChanged, required this.isDark});
+
+  @override
+  State<MainMenuPage> createState() => _MainMenuPageState();
+}
+
+class _MainMenuPageState extends State<MainMenuPage>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => SettingsPage(
+                    isDark: widget.isDark,
+                    onThemeChanged: widget.onThemeChanged,
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            RichText(
-              text: TextSpan(
-                style: const TextStyle(
-                  fontSize: 48,
-                  fontWeight: FontWeight.bold,
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Dot ',
+                  style: TextStyle(
+                    fontSize: 48,
+                    fontWeight: FontWeight.bold,
+                    color:
+                        widget.isDark ? Colors.white : Colors.black,
+                  ),
                 ),
-                children: const [
-                  TextSpan(
-                    text: 'Dot ',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  TextSpan(
-                    text: 'Hunter',
-                    style: TextStyle(
-                      color: Colors.red,
-                      shadows: [
-                        Shadow(
-                          blurRadius: 10,
-                          color: Colors.redAccent,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, child) {
+                    final blur = 10 + (_controller.value * 10);
+                    return Text(
+                      'Hunter',
+                      style: TextStyle(
+                        fontSize: 48,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red,
+                        shadows: [
+                          Shadow(
+                            blurRadius: blur,
+                            color: Colors.redAccent,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
             const SizedBox(height: 40),
             ElevatedButton(

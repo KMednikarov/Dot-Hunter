@@ -27,6 +27,7 @@ class GameState {
   final double speedMultiplier;
   final int speedIncreaseCount;
   final bool isGameOver;
+  final bool isPaused;
 
   GameState({
     required this.dots,
@@ -36,6 +37,7 @@ class GameState {
     required this.speedMultiplier,
     required this.speedIncreaseCount,
     required this.isGameOver,
+    required this.isPaused,
   });
 
   factory GameState.initial(Random rand, int count) {
@@ -58,6 +60,7 @@ class GameState {
       speedMultiplier: 1.0,
       speedIncreaseCount: 0,
       isGameOver: false,
+      isPaused: false,
     );
   }
 
@@ -69,6 +72,7 @@ class GameState {
     double? speedMultiplier,
     int? speedIncreaseCount,
     bool? isGameOver,
+    bool? isPaused,
   }) {
     return GameState(
       dots: dots ?? this.dots,
@@ -78,6 +82,7 @@ class GameState {
       speedMultiplier: speedMultiplier ?? this.speedMultiplier,
       speedIncreaseCount: speedIncreaseCount ?? this.speedIncreaseCount,
       isGameOver: isGameOver ?? this.isGameOver,
+      isPaused: isPaused ?? this.isPaused,
     );
   }
 }
@@ -101,7 +106,7 @@ class GameCubit extends Cubit<GameState> {
   }
 
   void _onTick() {
-    if (_areaSize == Size.zero || state.isGameOver) return;
+    if (_areaSize == Size.zero || state.isGameOver || state.isPaused) return;
     final newDots = state.dots.map((dot) {
       var newPos = dot.position + dot.velocity * state.speedMultiplier;
       var newVel = dot.velocity;
@@ -117,7 +122,7 @@ class GameCubit extends Cubit<GameState> {
   }
 
   void handleTap(Offset tapPos) async {
-    if (state.isGameOver) return;
+    if (state.isGameOver || state.isPaused) return;
     bool hitRed = false;
     for (final dot in state.dots) {
       final dist = (dot.position - tapPos).distance;
@@ -174,6 +179,11 @@ class GameCubit extends Cubit<GameState> {
 
   void restart() {
     emit(GameState.initial(_rand, _dotCount));
+  }
+
+  void togglePause() {
+    if (state.isGameOver) return;
+    emit(state.copyWith(isPaused: !state.isPaused));
   }
 
   @override

@@ -30,13 +30,10 @@ class GameState {
   final bool isPaused;
   final int slowPowerupCharges;
   final bool isSlowActive;
-  final double slowCooldownProgress;
   final int freezePowerupCharges;
   final bool isFreezeActive;
-  final double freezeCooldownProgress;
   final int shieldPowerupCharges;
   final bool isShieldActive;
-  final double shieldCooldownProgress;
 
   GameState({
     required this.dots,
@@ -49,13 +46,10 @@ class GameState {
     required this.isPaused,
     required this.slowPowerupCharges,
     required this.isSlowActive,
-    required this.slowCooldownProgress,
     required this.freezePowerupCharges,
     required this.isFreezeActive,
-    required this.freezeCooldownProgress,
     required this.shieldPowerupCharges,
     required this.isShieldActive,
-    required this.shieldCooldownProgress,
   });
 
   factory GameState.initial(Random rand, int count) {
@@ -79,15 +73,12 @@ class GameState {
       speedIncreaseCount: 0,
       isGameOver: false,
       isPaused: false,
-      slowPowerupCharges: 2,
+      slowPowerupCharges: 3,
       isSlowActive: false,
-      slowCooldownProgress: 1.0,
-      freezePowerupCharges: 2,
+      freezePowerupCharges: 3,
       isFreezeActive: false,
-      freezeCooldownProgress: 1.0,
-      shieldPowerupCharges: 1,
+      shieldPowerupCharges: 3,
       isShieldActive: false,
-      shieldCooldownProgress: 1.0,
     );
   }
 
@@ -102,13 +93,10 @@ class GameState {
     bool? isPaused,
     int? slowPowerupCharges,
     bool? isSlowActive,
-    double? slowCooldownProgress,
     int? freezePowerupCharges,
     bool? isFreezeActive,
-    double? freezeCooldownProgress,
     int? shieldPowerupCharges,
     bool? isShieldActive,
-    double? shieldCooldownProgress,
   }) {
     return GameState(
       dots: dots ?? this.dots,
@@ -121,17 +109,12 @@ class GameState {
       isPaused: isPaused ?? this.isPaused,
       slowPowerupCharges: slowPowerupCharges ?? this.slowPowerupCharges,
       isSlowActive: isSlowActive ?? this.isSlowActive,
-      slowCooldownProgress: slowCooldownProgress ?? this.slowCooldownProgress,
       freezePowerupCharges:
           freezePowerupCharges ?? this.freezePowerupCharges,
       isFreezeActive: isFreezeActive ?? this.isFreezeActive,
-      freezeCooldownProgress:
-          freezeCooldownProgress ?? this.freezeCooldownProgress,
       shieldPowerupCharges:
           shieldPowerupCharges ?? this.shieldPowerupCharges,
       isShieldActive: isShieldActive ?? this.isShieldActive,
-      shieldCooldownProgress:
-          shieldCooldownProgress ?? this.shieldCooldownProgress,
     );
   }
 }
@@ -147,12 +130,6 @@ class GameCubit extends Cubit<GameState> {
   Timer? _timer;
   Timer? _slowTimer;
   Timer? _freezeTimer;
-  DateTime? _slowCooldownStart;
-  DateTime? _freezeCooldownStart;
-  DateTime? _shieldCooldownStart;
-  final Duration _slowCooldownDuration = const Duration(seconds: 10);
-  final Duration _freezeCooldownDuration = const Duration(seconds: 10);
-  final Duration _shieldCooldownDuration = const Duration(seconds: 15);
 
   void _startTicker() {
     _timer = Timer.periodic(const Duration(milliseconds: 16), (_) => _onTick());
@@ -185,86 +162,7 @@ class GameCubit extends Cubit<GameState> {
                 color: dot.color,
                 radius: dot.radius);
           }).toList();
-    var newState = state.copyWith(dots: newDots);
-    newState = _updateCooldowns(newState);
-    emit(newState);
-  }
-
-  GameState _updateCooldowns(GameState base) {
-    final now = DateTime.now();
-
-    // Slow power-up cooldown
-    var slowCharges = base.slowPowerupCharges;
-    var slowProgress = base.slowCooldownProgress;
-    if (slowCharges < 2) {
-      _slowCooldownStart ??= now;
-      slowProgress = (now.difference(_slowCooldownStart!).inMilliseconds /
-              _slowCooldownDuration.inMilliseconds)
-          .clamp(0.0, 1.0);
-      if (slowProgress >= 1.0) {
-        slowCharges += 1;
-        if (slowCharges < 2) {
-          _slowCooldownStart = now;
-          slowProgress = 0.0;
-        } else {
-          _slowCooldownStart = null;
-          slowProgress = 1.0;
-        }
-      }
-    } else {
-      slowProgress = 1.0;
-      _slowCooldownStart = null;
-    }
-
-    // Freeze power-up cooldown
-    var freezeCharges = base.freezePowerupCharges;
-    var freezeProgress = base.freezeCooldownProgress;
-    if (freezeCharges < 2) {
-      _freezeCooldownStart ??= now;
-      freezeProgress = (now.difference(_freezeCooldownStart!).inMilliseconds /
-              _freezeCooldownDuration.inMilliseconds)
-          .clamp(0.0, 1.0);
-      if (freezeProgress >= 1.0) {
-        freezeCharges += 1;
-        if (freezeCharges < 2) {
-          _freezeCooldownStart = now;
-          freezeProgress = 0.0;
-        } else {
-          _freezeCooldownStart = null;
-          freezeProgress = 1.0;
-        }
-      }
-    } else {
-      freezeProgress = 1.0;
-      _freezeCooldownStart = null;
-    }
-
-    // Shield power-up cooldown
-    var shieldCharges = base.shieldPowerupCharges;
-    var shieldProgress = base.shieldCooldownProgress;
-    if (shieldCharges < 1) {
-      _shieldCooldownStart ??= now;
-      shieldProgress = (now.difference(_shieldCooldownStart!).inMilliseconds /
-              _shieldCooldownDuration.inMilliseconds)
-          .clamp(0.0, 1.0);
-      if (shieldProgress >= 1.0) {
-        shieldCharges = 1;
-        _shieldCooldownStart = null;
-        shieldProgress = 1.0;
-      }
-    } else {
-      shieldProgress = 1.0;
-      _shieldCooldownStart = null;
-    }
-
-    return base.copyWith(
-      slowPowerupCharges: slowCharges,
-      slowCooldownProgress: slowProgress,
-      freezePowerupCharges: freezeCharges,
-      freezeCooldownProgress: freezeProgress,
-      shieldPowerupCharges: shieldCharges,
-      shieldCooldownProgress: shieldProgress,
-    );
+    emit(state.copyWith(dots: newDots));
   }
 
   void useSlowPowerup() {
@@ -273,10 +171,7 @@ class GameCubit extends Cubit<GameState> {
     emit(state.copyWith(
       slowPowerupCharges: state.slowPowerupCharges - 1,
       isSlowActive: true,
-      slowCooldownProgress: 0.0,
     ));
-
-    _slowCooldownStart ??= DateTime.now();
 
     _slowTimer?.cancel();
     _slowTimer = Timer(const Duration(seconds: 3), () {
@@ -292,10 +187,7 @@ class GameCubit extends Cubit<GameState> {
     emit(state.copyWith(
       freezePowerupCharges: state.freezePowerupCharges - 1,
       isFreezeActive: true,
-      freezeCooldownProgress: 0.0,
     ));
-
-    _freezeCooldownStart ??= DateTime.now();
 
     _freezeTimer?.cancel();
     _freezeTimer = Timer(const Duration(seconds: 3), () {
@@ -311,10 +203,7 @@ class GameCubit extends Cubit<GameState> {
     emit(state.copyWith(
       shieldPowerupCharges: state.shieldPowerupCharges - 1,
       isShieldActive: true,
-      shieldCooldownProgress: 0.0,
     ));
-
-    _shieldCooldownStart ??= DateTime.now();
   }
 
   void handleTap(Offset tapPos) async {
@@ -380,9 +269,6 @@ class GameCubit extends Cubit<GameState> {
   void restart() {
     _slowTimer?.cancel();
     _freezeTimer?.cancel();
-    _slowCooldownStart = null;
-    _freezeCooldownStart = null;
-    _shieldCooldownStart = null;
     emit(GameState.initial(_rand, _dotCount));
   }
 

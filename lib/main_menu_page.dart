@@ -7,15 +7,19 @@ import 'settings_page.dart';
 class MainMenuPage extends StatefulWidget {
   final bool isDark;
   final bool glowEnabled;
+  final bool powerupButtonsRight;
   final ValueChanged<bool> onThemeChanged;
   final ValueChanged<bool> onGlowChanged;
+  final ValueChanged<bool> onPowerupPositionChanged;
 
   const MainMenuPage({
     super.key,
     required this.onThemeChanged,
     required this.onGlowChanged,
+    required this.onPowerupPositionChanged,
     required this.isDark,
     required this.glowEnabled,
+    required this.powerupButtonsRight,
   });
 
   @override
@@ -94,7 +98,10 @@ class _MainMenuPageState extends State<MainMenuPage>
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) => GamePage(glowEnabled: widget.glowEnabled),
+                    builder: (_) => GamePage(
+                      glowEnabled: widget.glowEnabled,
+                      powerupButtonsRight: widget.powerupButtonsRight,
+                    ),
                   ),
                 );
               },
@@ -121,8 +128,11 @@ class _MainMenuPageState extends State<MainMenuPage>
                     builder: (_) => SettingsPage(
                       isDark: widget.isDark,
                       glowEnabled: widget.glowEnabled,
+                      powerupButtonsRight: widget.powerupButtonsRight,
                       onThemeChanged: widget.onThemeChanged,
                       onGlowChanged: widget.onGlowChanged,
+                      onPowerupPositionChanged:
+                          widget.onPowerupPositionChanged,
                     ),
                   ),
                 );

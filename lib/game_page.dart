@@ -5,19 +5,47 @@ import 'bloc/game_cubit.dart';
 import 'leaderboard_page.dart';
 
 class GamePage extends StatelessWidget {
-  const GamePage({super.key});
+  final bool glowEnabled;
+  const GamePage({super.key, required this.glowEnabled});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => GameCubit(),
-      child: const _GameView(),
+      child: _GameView(glowEnabled: glowEnabled),
     );
   }
 }
 
-class _GameView extends StatelessWidget {
-  const _GameView();
+class _GameView extends StatefulWidget {
+  final bool glowEnabled;
+  const _GameView({required this.glowEnabled});
+
+  @override
+  State<_GameView> createState() => _GameViewState();
+}
+
+class _GameViewState extends State<_GameView>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _glowController;
+
+  @override
+  void initState() {
+    super.initState();
+    _glowController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    );
+    if (widget.glowEnabled) {
+      _glowController.repeat(reverse: true);
+    }
+  }
+
+  @override
+  void dispose() {
+    _glowController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,23 +125,34 @@ class _GameView extends StatelessWidget {
                         (dot) => Positioned(
                           left: dot.position.dx - dot.radius,
                           top: dot.position.dy - dot.radius,
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 300),
-                            width: dot.radius * 2,
-                            height: dot.radius * 2,
-                            decoration: BoxDecoration(
-                              color: dot.color,
-                              shape: BoxShape.circle,
-                              boxShadow: dot.color == Colors.red
-                                  ? null
-                                  : [
-                                      BoxShadow(
-                                        color: dot.color.withOpacity(0.6),
-                                        blurRadius: 8,
-                                        spreadRadius: 1,
-                                      ),
-                                    ],
-                            ),
+                          child: AnimatedBuilder(
+                            animation: _glowController,
+                            builder: (context, child) {
+                              final blur = widget.glowEnabled
+                                  ? 8 + (_glowController.value * 6)
+                                  : 8.0;
+                              final spread = widget.glowEnabled
+                                  ? 1 + (_glowController.value * 2)
+                                  : 1.0;
+                              return AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                width: dot.radius * 2,
+                                height: dot.radius * 2,
+                                decoration: BoxDecoration(
+                                  color: dot.color,
+                                  shape: BoxShape.circle,
+                                  boxShadow: dot.color == Colors.red
+                                      ? null
+                                      : [
+                                          BoxShadow(
+                                            color: dot.color.withOpacity(0.6),
+                                            blurRadius: blur,
+                                            spreadRadius: spread,
+                                          ),
+                                        ],
+                                ),
+                              );
+                            },
                           ),
                         ),
                       ),

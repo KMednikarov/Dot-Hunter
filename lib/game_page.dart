@@ -115,95 +115,101 @@ class _GameViewState extends State<_GameView>
               builder: (context, constraints) {
                 context.read<GameCubit>().updateAreaSize(
                     Size(constraints.maxWidth, constraints.maxHeight));
-                return GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTapDown: (details) =>
-                      context.read<GameCubit>().handleTap(details.localPosition),
-                  child: Stack(
-                    children: [
-                      ...state.dots.map(
-                        (dot) => Positioned(
-                          left: dot.position.dx - dot.radius,
-                          top: dot.position.dy - dot.radius,
-                          child: AnimatedBuilder(
-                            animation: _glowController,
-                            builder: (context, child) {
-                              final blur = widget.glowEnabled
-                                  ? 8 + (_glowController.value * 6)
-                                  : 8.0;
-                              final spread = widget.glowEnabled
-                                  ? 1 + (_glowController.value * 2)
-                                  : 1.0;
-                              return AnimatedContainer(
-                                duration: const Duration(milliseconds: 300),
-                                width: dot.radius * 2,
-                                height: dot.radius * 2,
-                                decoration: BoxDecoration(
-                                  color: dot.color,
-                                  shape: BoxShape.circle,
-                                  boxShadow: dot.color == Colors.red
-                                      ? null
-                                      : [
-                                          BoxShadow(
-                                            color: dot.color.withOpacity(0.6),
-                                            blurRadius: blur,
-                                            spreadRadius: spread,
-                                          ),
-                                        ],
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        top: 10,
-                        left: 10,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: List.generate(
-                            state.maxLives,
-                            (index) => Icon(
-                              Icons.favorite,
-                              color: index < state.lives
-                                  ? Colors.red
-                                  : Colors.grey,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        top: 10,
-                        right: 10,
-                        child: Text('Score: ${state.score}'),
-                      ),
-                      Positioned(
-                        bottom: 10,
-                        left: 10,
-                        child: FloatingActionButton(
-                          heroTag: 'slowPower',
-                          mini: true,
-                          onPressed: (state.slowPowerupCharges > 0 && !state.isSlowActive)
-                              ? () => context.read<GameCubit>().useSlowPowerup()
-                              : null,
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              const Icon(Icons.flash_on),
-                              Positioned(
-                                right: -6,
-                                bottom: -6,
-                                child: Text(
-                                  '${state.slowPowerupCharges}',
-                                  style: const TextStyle(fontSize: 12),
+                return Stack(
+                  children: [
+                    Positioned.fill(
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTapDown: (details) =>
+                            context.read<GameCubit>().handleTap(details.localPosition),
+                        child: Stack(
+                          children: [
+                            ...state.dots.map(
+                              (dot) => Positioned(
+                                left: dot.position.dx - dot.radius,
+                                top: dot.position.dy - dot.radius,
+                                child: AnimatedBuilder(
+                                  animation: _glowController,
+                                  builder: (context, child) {
+                                    final blur = widget.glowEnabled
+                                        ? 8 + (_glowController.value * 6)
+                                        : 8.0;
+                                    final spread = widget.glowEnabled
+                                        ? 1 + (_glowController.value * 2)
+                                        : 1.0;
+                                    return AnimatedContainer(
+                                      duration: const Duration(milliseconds: 300),
+                                      width: dot.radius * 2,
+                                      height: dot.radius * 2,
+                                      decoration: BoxDecoration(
+                                        color: dot.color,
+                                        shape: BoxShape.circle,
+                                        boxShadow: dot.color == Colors.red
+                                            ? null
+                                            : [
+                                                BoxShadow(
+                                                  color: dot.color.withOpacity(0.6),
+                                                  blurRadius: blur,
+                                                  spreadRadius: spread,
+                                                ),
+                                              ],
+                                      ),
+                                    );
+                                  },
                                 ),
                               ),
-                            ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 10,
+                      left: 10,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: List.generate(
+                          state.maxLives,
+                          (index) => Icon(
+                            Icons.favorite,
+                            color: index < state.lives
+                                ? Colors.red
+                                : Colors.grey,
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                    Positioned(
+                      top: 10,
+                      right: 10,
+                      child: Text('Score: ${state.score}'),
+                    ),
+                    Positioned(
+                      bottom: 10,
+                      left: 10,
+                      child: FloatingActionButton(
+                        heroTag: 'slowPower',
+                        mini: true,
+                        onPressed: (state.slowPowerupCharges > 0 && !state.isSlowActive)
+                            ? () => context.read<GameCubit>().useSlowPowerup()
+                            : null,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            const Icon(Icons.flash_on),
+                            Positioned(
+                              right: -6,
+                              bottom: -6,
+                              child: Text(
+                                '${state.slowPowerupCharges}',
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 );
               },
             );

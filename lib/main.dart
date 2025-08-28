@@ -16,6 +16,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   ThemeMode _themeMode = ThemeMode.dark;
   bool _glowEnabled = true;
+  bool _powerupButtonsRight = true;
 
   void _updateTheme(bool isDark) {
     setState(() {
@@ -26,6 +27,12 @@ class _MyAppState extends State<MyApp> {
   void _updateGlow(bool enabled) {
     setState(() {
       _glowEnabled = enabled;
+    });
+  }
+
+  void _updatePowerupPosition(bool right) {
+    setState(() {
+      _powerupButtonsRight = right;
     });
   }
 
@@ -45,8 +52,10 @@ class _MyAppState extends State<MyApp> {
       home: MainMenuPage(
         onThemeChanged: _updateTheme,
         onGlowChanged: _updateGlow,
+        onPowerupPositionChanged: _updatePowerupPosition,
         isDark: _themeMode == ThemeMode.dark,
         glowEnabled: _glowEnabled,
+        powerupButtonsRight: _powerupButtonsRight,
       ),
     );
   }

@@ -6,20 +6,22 @@ import 'leaderboard_page.dart';
 
 class GamePage extends StatelessWidget {
   final bool glowEnabled;
-  const GamePage({super.key, required this.glowEnabled});
+  final bool powerupButtonsRight;
+  const GamePage({super.key, required this.glowEnabled, required this.powerupButtonsRight});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => GameCubit(),
-      child: _GameView(glowEnabled: glowEnabled),
+      child: _GameView(glowEnabled: glowEnabled, powerupButtonsRight: powerupButtonsRight),
     );
   }
 }
 
 class _GameView extends StatefulWidget {
   final bool glowEnabled;
-  const _GameView({required this.glowEnabled});
+  final bool powerupButtonsRight;
+  const _GameView({required this.glowEnabled, required this.powerupButtonsRight});
 
   @override
   State<_GameView> createState() => _GameViewState();
@@ -50,44 +52,38 @@ class _GameViewState extends State<_GameView>
   Widget _buildPowerButton({
     required IconData icon,
     required int charges,
-    required int maxCharges,
-    required double progress,
     required VoidCallback? onPressed,
     required String heroTag,
   }) {
-    const double size = 40;
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        if (charges < maxCharges)
-          SizedBox(
-            width: size + 16,
-            height: size + 16,
-            child: CircularProgressIndicator(
-              value: progress,
-              strokeWidth: 4,
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 300),
+      transitionBuilder: (child, animation) =>
+          ScaleTransition(scale: animation, child: child),
+      child: Stack(
+        key: ValueKey(charges),
+        alignment: Alignment.center,
+        children: [
+          FloatingActionButton(
+            heroTag: heroTag,
+            mini: true,
+            onPressed: onPressed,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Icon(icon),
+                Positioned(
+                  right: -6,
+                  bottom: -6,
+                  child: Text(
+                    '$charges',
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                ),
+              ],
             ),
           ),
-        FloatingActionButton(
-          heroTag: heroTag,
-          mini: true,
-          onPressed: onPressed,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Icon(icon),
-              Positioned(
-                right: -6,
-                bottom: -6,
-                child: Text(
-                  '$charges',
-                  style: const TextStyle(fontSize: 12),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -230,14 +226,13 @@ class _GameViewState extends State<_GameView>
                     ),
                     Positioned(
                       bottom: 10,
-                      left: 10,
+                      left: widget.powerupButtonsRight ? null : 10,
+                      right: widget.powerupButtonsRight ? 10 : null,
                       child: Row(
                         children: [
                           _buildPowerButton(
                             icon: Icons.flash_on,
                             charges: state.slowPowerupCharges,
-                            maxCharges: 2,
-                            progress: state.slowCooldownProgress,
                             onPressed: (state.slowPowerupCharges > 0 &&
                                     !state.isSlowActive)
                                 ? () =>
@@ -249,8 +244,6 @@ class _GameViewState extends State<_GameView>
                           _buildPowerButton(
                             icon: Icons.ac_unit,
                             charges: state.freezePowerupCharges,
-                            maxCharges: 2,
-                            progress: state.freezeCooldownProgress,
                             onPressed: (state.freezePowerupCharges > 0 &&
                                     !state.isFreezeActive)
                                 ? () =>
@@ -262,8 +255,6 @@ class _GameViewState extends State<_GameView>
                           _buildPowerButton(
                             icon: Icons.shield,
                             charges: state.shieldPowerupCharges,
-                            maxCharges: 1,
-                            progress: state.shieldCooldownProgress,
                             onPressed: (state.shieldPowerupCharges > 0 &&
                                     !state.isShieldActive)
                                 ? () =>

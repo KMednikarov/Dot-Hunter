@@ -178,14 +178,15 @@ class GameCubit extends Cubit<GameState> {
                 color: dot.color,
                 radius: dot.radius);
           }).toList();
-    final newSlowCooldown =
-        state.slowCooldown > 0 ? (state.slowCooldown - 0.016).clamp(0, _powerupCooldown) : 0;
+    final newSlowCooldown = state.slowCooldown > 0
+        ? (state.slowCooldown - 0.016).clamp(0.0, _powerupCooldown).toDouble()
+        : 0.0;
     final newFreezeCooldown = state.freezeCooldown > 0
-        ? (state.freezeCooldown - 0.016).clamp(0, _powerupCooldown)
-        : 0;
+        ? (state.freezeCooldown - 0.016).clamp(0.0, _powerupCooldown).toDouble()
+        : 0.0;
     final newShieldCooldown = state.shieldCooldown > 0
-        ? (state.shieldCooldown - 0.016).clamp(0, _powerupCooldown)
-        : 0;
+        ? (state.shieldCooldown - 0.016).clamp(0.0, _powerupCooldown).toDouble()
+        : 0.0;
     emit(state.copyWith(
       dots: newDots,
       slowCooldown: newSlowCooldown,

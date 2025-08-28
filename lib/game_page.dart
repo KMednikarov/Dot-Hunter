@@ -24,6 +24,17 @@ class _GameView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dot Hunter'),
+        actions: [
+          BlocBuilder<GameCubit, GameState>(
+            buildWhen: (p, c) => p.isPaused != c.isPaused,
+            builder: (context, state) {
+              return IconButton(
+                icon: Icon(state.isPaused ? Icons.play_arrow : Icons.pause),
+                onPressed: () => context.read<GameCubit>().togglePause(),
+              );
+            },
+          ),
+        ],
       ),
       body: BlocListener<GameCubit, GameState>(
         listenWhen: (previous, current) =>
@@ -58,6 +69,13 @@ class _GameView extends StatelessWidget {
                     },
                     child: const Text('Play Again'),
                   ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(dialogContext).pop();
+                      Navigator.of(dialogContext).pop();
+                    },
+                    child: const Text('Main Menu'),
+                  ),
                 ],
               );
             },
@@ -71,7 +89,7 @@ class _GameView extends StatelessWidget {
                     Size(constraints.maxWidth, constraints.maxHeight));
                 return GestureDetector(
                   behavior: HitTestBehavior.opaque,
-                  onTapUp: (details) =>
+                  onTapDown: (details) =>
                       context.read<GameCubit>().handleTap(details.localPosition),
                   child: Stack(
                     children: [

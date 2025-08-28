@@ -35,6 +35,8 @@ class _MainMenuPageState extends State<MainMenuPage>
 
   @override
   Widget build(BuildContext context) {
+    final buttonStyle =
+        ElevatedButton.styleFrom(minimumSize: const Size(200, 50));
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -80,6 +82,7 @@ class _MainMenuPageState extends State<MainMenuPage>
             ),
             const SizedBox(height: 40),
             ElevatedButton(
+              style: buttonStyle,
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
@@ -91,6 +94,7 @@ class _MainMenuPageState extends State<MainMenuPage>
             ),
             const SizedBox(height: 20),
             ElevatedButton(
+              style: buttonStyle,
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
@@ -102,6 +106,7 @@ class _MainMenuPageState extends State<MainMenuPage>
             ),
             const SizedBox(height: 20),
             ElevatedButton(
+              style: buttonStyle,
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(

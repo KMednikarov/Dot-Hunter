@@ -47,6 +47,50 @@ class _GameViewState extends State<_GameView>
     super.dispose();
   }
 
+  Widget _buildPowerButton({
+    required IconData icon,
+    required int charges,
+    required int maxCharges,
+    required double progress,
+    required VoidCallback? onPressed,
+    required String heroTag,
+  }) {
+    const double size = 40;
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        if (charges < maxCharges)
+          SizedBox(
+            width: size + 16,
+            height: size + 16,
+            child: CircularProgressIndicator(
+              value: progress,
+              strokeWidth: 4,
+            ),
+          ),
+        FloatingActionButton(
+          heroTag: heroTag,
+          mini: true,
+          onPressed: onPressed,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Icon(icon),
+              Positioned(
+                right: -6,
+                bottom: -6,
+                child: Text(
+                  '$charges',
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -187,26 +231,47 @@ class _GameViewState extends State<_GameView>
                     Positioned(
                       bottom: 10,
                       left: 10,
-                      child: FloatingActionButton(
-                        heroTag: 'slowPower',
-                        mini: true,
-                        onPressed: (state.slowPowerupCharges > 0 && !state.isSlowActive)
-                            ? () => context.read<GameCubit>().useSlowPowerup()
-                            : null,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            const Icon(Icons.flash_on),
-                            Positioned(
-                              right: -6,
-                              bottom: -6,
-                              child: Text(
-                                '${state.slowPowerupCharges}',
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                            ),
-                          ],
-                        ),
+                      child: Row(
+                        children: [
+                          _buildPowerButton(
+                            icon: Icons.flash_on,
+                            charges: state.slowPowerupCharges,
+                            maxCharges: 2,
+                            progress: state.slowCooldownProgress,
+                            onPressed: (state.slowPowerupCharges > 0 &&
+                                    !state.isSlowActive)
+                                ? () =>
+                                    context.read<GameCubit>().useSlowPowerup()
+                                : null,
+                            heroTag: 'slowPower',
+                          ),
+                          const SizedBox(width: 10),
+                          _buildPowerButton(
+                            icon: Icons.ac_unit,
+                            charges: state.freezePowerupCharges,
+                            maxCharges: 2,
+                            progress: state.freezeCooldownProgress,
+                            onPressed: (state.freezePowerupCharges > 0 &&
+                                    !state.isFreezeActive)
+                                ? () =>
+                                    context.read<GameCubit>().useFreezePowerup()
+                                : null,
+                            heroTag: 'freezePower',
+                          ),
+                          const SizedBox(width: 10),
+                          _buildPowerButton(
+                            icon: Icons.shield,
+                            charges: state.shieldPowerupCharges,
+                            maxCharges: 1,
+                            progress: state.shieldCooldownProgress,
+                            onPressed: (state.shieldPowerupCharges > 0 &&
+                                    !state.isShieldActive)
+                                ? () =>
+                                    context.read<GameCubit>().useShieldPowerup()
+                                : null,
+                            heroTag: 'shieldPower',
+                          ),
+                        ],
                       ),
                     ),
                   ],

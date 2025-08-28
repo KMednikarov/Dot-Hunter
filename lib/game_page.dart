@@ -30,6 +30,7 @@ class _GameView extends StatefulWidget {
 class _GameViewState extends State<_GameView>
     with SingleTickerProviderStateMixin {
   late final AnimationController _glowController;
+  static const double _cooldownDuration = 5.0;
 
   @override
   void initState() {
@@ -54,6 +55,7 @@ class _GameViewState extends State<_GameView>
     required int charges,
     required VoidCallback? onPressed,
     required String heroTag,
+    required double cooldown,
   }) {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
@@ -66,7 +68,7 @@ class _GameViewState extends State<_GameView>
           FloatingActionButton(
             heroTag: heroTag,
             mini: true,
-            onPressed: onPressed,
+            onPressed: cooldown > 0 ? null : onPressed,
             child: Stack(
               alignment: Alignment.center,
               children: [
@@ -82,6 +84,17 @@ class _GameViewState extends State<_GameView>
               ],
             ),
           ),
+          if (cooldown > 0)
+            SizedBox(
+              width: 40,
+              height: 40,
+              child: CircularProgressIndicator(
+                value: cooldown / _cooldownDuration,
+                backgroundColor: Colors.black26,
+                valueColor: const AlwaysStoppedAnimation(Colors.white70),
+                strokeWidth: 4,
+              ),
+            ),
         ],
       ),
     );
@@ -234,33 +247,39 @@ class _GameViewState extends State<_GameView>
                             icon: Icons.flash_on,
                             charges: state.slowPowerupCharges,
                             onPressed: (state.slowPowerupCharges > 0 &&
-                                    !state.isSlowActive)
+                                    !state.isSlowActive &&
+                                    state.slowCooldown <= 0)
                                 ? () =>
                                     context.read<GameCubit>().useSlowPowerup()
                                 : null,
                             heroTag: 'slowPower',
+                            cooldown: state.slowCooldown,
                           ),
                           const SizedBox(width: 10),
                           _buildPowerButton(
                             icon: Icons.ac_unit,
                             charges: state.freezePowerupCharges,
                             onPressed: (state.freezePowerupCharges > 0 &&
-                                    !state.isFreezeActive)
+                                    !state.isFreezeActive &&
+                                    state.freezeCooldown <= 0)
                                 ? () =>
                                     context.read<GameCubit>().useFreezePowerup()
                                 : null,
                             heroTag: 'freezePower',
+                            cooldown: state.freezeCooldown,
                           ),
                           const SizedBox(width: 10),
                           _buildPowerButton(
                             icon: Icons.shield,
                             charges: state.shieldPowerupCharges,
                             onPressed: (state.shieldPowerupCharges > 0 &&
-                                    !state.isShieldActive)
+                                    !state.isShieldActive &&
+                                    state.shieldCooldown <= 0)
                                 ? () =>
                                     context.read<GameCubit>().useShieldPowerup()
                                 : null,
                             heroTag: 'shieldPower',
+                            cooldown: state.shieldCooldown,
                           ),
                         ],
                       ),

@@ -69,4 +69,26 @@ void main() {
     expect(redHearts, 4);
     expect(greyHearts, 1);
   });
+
+  testWidgets('Using slow powerup does not lose a life',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(const MyApp());
+    await tester.tap(find.text('Start Game'));
+    await tester.pumpAndSettle();
+
+    final initialHearts = tester
+        .widgetList<Icon>(find.byIcon(Icons.favorite))
+        .where((icon) => icon.color == Colors.red)
+        .length;
+
+    await tester.tap(find.byIcon(Icons.flash_on));
+    await tester.pump();
+
+    final heartsAfter = tester
+        .widgetList<Icon>(find.byIcon(Icons.favorite))
+        .where((icon) => icon.color == Colors.red)
+        .length;
+
+    expect(heartsAfter, initialHearts);
+  });
 }

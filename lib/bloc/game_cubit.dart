@@ -28,6 +28,8 @@ class GameState {
   final int speedIncreaseCount;
   final bool isGameOver;
   final bool isPaused;
+  final int slowPowerupCharges;
+  final bool isSlowActive;
 
   GameState({
     required this.dots,
@@ -38,6 +40,8 @@ class GameState {
     required this.speedIncreaseCount,
     required this.isGameOver,
     required this.isPaused,
+    required this.slowPowerupCharges,
+    required this.isSlowActive,
   });
 
   factory GameState.initial(Random rand, int count) {
@@ -61,6 +65,8 @@ class GameState {
       speedIncreaseCount: 0,
       isGameOver: false,
       isPaused: false,
+      slowPowerupCharges: 2,
+      isSlowActive: false,
     );
   }
 
@@ -73,6 +79,8 @@ class GameState {
     int? speedIncreaseCount,
     bool? isGameOver,
     bool? isPaused,
+    int? slowPowerupCharges,
+    bool? isSlowActive,
   }) {
     return GameState(
       dots: dots ?? this.dots,
@@ -83,6 +91,8 @@ class GameState {
       speedIncreaseCount: speedIncreaseCount ?? this.speedIncreaseCount,
       isGameOver: isGameOver ?? this.isGameOver,
       isPaused: isPaused ?? this.isPaused,
+      slowPowerupCharges: slowPowerupCharges ?? this.slowPowerupCharges,
+      isSlowActive: isSlowActive ?? this.isSlowActive,
     );
   }
 }
@@ -96,6 +106,8 @@ class GameCubit extends Cubit<GameState> {
   final int _dotCount = 6;
   Size _areaSize = Size.zero;
   Timer? _timer;
+  Timer? _slowTimer;
+  final List<Timer> _slowCooldownTimers = [];
 
   void _startTicker() {
     _timer = Timer.periodic(const Duration(milliseconds: 16), (_) => _onTick());
@@ -108,7 +120,9 @@ class GameCubit extends Cubit<GameState> {
   void _onTick() {
     if (_areaSize == Size.zero || state.isGameOver || state.isPaused) return;
     final newDots = state.dots.map((dot) {
-      var newPos = dot.position + dot.velocity * state.speedMultiplier;
+      final slowFactor = state.isSlowActive ? 0.5 : 1.0;
+      var newPos =
+          dot.position + dot.velocity * state.speedMultiplier * slowFactor;
       var newVel = dot.velocity;
       if (newPos.dx <= dot.radius || newPos.dx >= _areaSize.width - dot.radius) {
         newVel = Offset(-newVel.dx, newVel.dy);
@@ -119,6 +133,30 @@ class GameCubit extends Cubit<GameState> {
       return Dot(position: newPos, velocity: newVel, color: dot.color, radius: dot.radius);
     }).toList();
     emit(state.copyWith(dots: newDots));
+  }
+
+  void useSlowPowerup() {
+    if (state.isGameOver || state.isPaused) return;
+    if (state.slowPowerupCharges <= 0 || state.isSlowActive) return;
+    emit(state.copyWith(
+      slowPowerupCharges: state.slowPowerupCharges - 1,
+      isSlowActive: true,
+    ));
+
+    _slowTimer?.cancel();
+    _slowTimer = Timer(const Duration(seconds: 3), () {
+      if (!isClosed) {
+        emit(state.copyWith(isSlowActive: false));
+      }
+    });
+
+    _slowCooldownTimers.add(Timer(const Duration(seconds: 10), () {
+      if (!isClosed) {
+        emit(state.copyWith(
+          slowPowerupCharges: min(state.slowPowerupCharges + 1, 2),
+        ));
+      }
+    }));
   }
 
   void handleTap(Offset tapPos) async {
@@ -178,6 +216,11 @@ class GameCubit extends Cubit<GameState> {
   }
 
   void restart() {
+    _slowTimer?.cancel();
+    for (final t in _slowCooldownTimers) {
+      t.cancel();
+    }
+    _slowCooldownTimers.clear();
     emit(GameState.initial(_rand, _dotCount));
   }
 
@@ -189,6 +232,10 @@ class GameCubit extends Cubit<GameState> {
   @override
   Future<void> close() {
     _timer?.cancel();
+    _slowTimer?.cancel();
+    for (final t in _slowCooldownTimers) {
+      t.cancel();
+    }
     return super.close();
   }
 }

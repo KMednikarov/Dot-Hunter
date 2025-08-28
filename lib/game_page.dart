@@ -177,6 +177,31 @@ class _GameViewState extends State<_GameView>
                         right: 10,
                         child: Text('Score: ${state.score}'),
                       ),
+                      Positioned(
+                        bottom: 10,
+                        left: 10,
+                        child: FloatingActionButton(
+                          heroTag: 'slowPower',
+                          mini: true,
+                          onPressed: (state.slowPowerupCharges > 0 && !state.isSlowActive)
+                              ? () => context.read<GameCubit>().useSlowPowerup()
+                              : null,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              const Icon(Icons.flash_on),
+                              Positioned(
+                                right: -6,
+                                bottom: -6,
+                                child: Text(
+                                  '${state.slowPowerupCharges}',
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 );

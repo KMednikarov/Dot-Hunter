@@ -25,6 +25,7 @@ class GameState {
   final int lives;
   final int maxLives;
   final double speedMultiplier;
+  final int speedIncreaseCount;
   final bool isGameOver;
 
   GameState({
@@ -33,6 +34,7 @@ class GameState {
     required this.lives,
     required this.maxLives,
     required this.speedMultiplier,
+    required this.speedIncreaseCount,
     required this.isGameOver,
   });
 
@@ -45,7 +47,7 @@ class GameState {
         color: isRed
             ? Colors.red
             : Color.fromARGB(255, rand.nextInt(256), rand.nextInt(256), rand.nextInt(256)),
-        radius: 15,
+        radius: isRed ? 20 : 15,
       );
     });
     return GameState(
@@ -54,6 +56,7 @@ class GameState {
       lives: 5,
       maxLives: 5,
       speedMultiplier: 1.0,
+      speedIncreaseCount: 0,
       isGameOver: false,
     );
   }
@@ -64,6 +67,7 @@ class GameState {
     int? lives,
     int? maxLives,
     double? speedMultiplier,
+    int? speedIncreaseCount,
     bool? isGameOver,
   }) {
     return GameState(
@@ -72,6 +76,7 @@ class GameState {
       lives: lives ?? this.lives,
       maxLives: maxLives ?? this.maxLives,
       speedMultiplier: speedMultiplier ?? this.speedMultiplier,
+      speedIncreaseCount: speedIncreaseCount ?? this.speedIncreaseCount,
       isGameOver: isGameOver ?? this.isGameOver,
     );
   }
@@ -125,9 +130,29 @@ class GameCubit extends Cubit<GameState> {
     }
 
     if (hitRed) {
+      final newCount = state.speedIncreaseCount + 1;
+      var newDots = state.dots;
+      if (newCount % 2 == 0) {
+        newDots = state.dots.map((dot) {
+          if (dot.color == Colors.red) return dot;
+          return Dot(
+            position: dot.position,
+            velocity: dot.velocity,
+            color: Color.fromARGB(
+              255,
+              _rand.nextInt(256),
+              _rand.nextInt(256),
+              _rand.nextInt(256),
+            ),
+            radius: dot.radius,
+          );
+        }).toList();
+      }
       emit(state.copyWith(
         score: state.score + 1,
         speedMultiplier: state.speedMultiplier * 1.1,
+        speedIncreaseCount: newCount,
+        dots: newDots,
       ));
     } else {
       final lives = state.lives - 1;

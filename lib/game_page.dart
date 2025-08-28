@@ -79,12 +79,22 @@ class _GameView extends StatelessWidget {
                         (dot) => Positioned(
                           left: dot.position.dx - dot.radius,
                           top: dot.position.dy - dot.radius,
-                          child: Container(
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
                             width: dot.radius * 2,
                             height: dot.radius * 2,
                             decoration: BoxDecoration(
                               color: dot.color,
                               shape: BoxShape.circle,
+                              boxShadow: dot.color == Colors.red
+                                  ? null
+                                  : [
+                                      BoxShadow(
+                                        color: dot.color.withOpacity(0.6),
+                                        blurRadius: 8,
+                                        spreadRadius: 1,
+                                      ),
+                                    ],
                             ),
                           ),
                         ),

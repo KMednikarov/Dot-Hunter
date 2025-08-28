@@ -39,21 +39,6 @@ class _MainMenuPageState extends State<MainMenuPage>
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => SettingsPage(
-                    isDark: widget.isDark,
-                    onThemeChanged: widget.onThemeChanged,
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
       ),
       body: Center(
         child: Column(
@@ -114,6 +99,20 @@ class _MainMenuPageState extends State<MainMenuPage>
                 );
               },
               child: const Text('Leaderboard'),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => SettingsPage(
+                      isDark: widget.isDark,
+                      onThemeChanged: widget.onThemeChanged,
+                    ),
+                  ),
+                );
+              },
+              child: const Text('Settings'),
             ),
           ],
         ),

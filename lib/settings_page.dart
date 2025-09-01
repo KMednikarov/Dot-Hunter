@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'audio_manager.dart';
+
 class SettingsPage extends StatefulWidget {
   final bool isDark;
   final bool glowEnabled;
@@ -26,6 +28,7 @@ class _SettingsPageState extends State<SettingsPage> {
   late bool _isDark;
   late bool _glowEnabled;
   late bool _powerupButtonsRight;
+  late bool _soundEnabled;
 
   @override
   void initState() {
@@ -33,6 +36,7 @@ class _SettingsPageState extends State<SettingsPage> {
     _isDark = widget.isDark;
     _glowEnabled = widget.glowEnabled;
     _powerupButtonsRight = widget.powerupButtonsRight;
+    _soundEnabled = AudioManager().enabled;
   }
 
   @override
@@ -51,6 +55,16 @@ class _SettingsPageState extends State<SettingsPage> {
                 _isDark = value;
               });
               widget.onThemeChanged(value);
+            },
+          ),
+          SwitchListTile(
+            title: const Text('Sound'),
+            value: _soundEnabled,
+            onChanged: (value) {
+              setState(() {
+                _soundEnabled = value;
+              });
+              AudioManager().setEnabled(value);
             },
           ),
           SwitchListTile(

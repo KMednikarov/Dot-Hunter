@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'audio_manager.dart';
 
@@ -9,6 +10,8 @@ class SettingsPage extends StatefulWidget {
   final ValueChanged<bool> onThemeChanged;
   final ValueChanged<bool> onGlowChanged;
   final ValueChanged<bool> onPowerupPositionChanged;
+  final ValueChanged<Locale> onLocaleChanged;
+  final Locale locale;
 
   const SettingsPage({
     super.key,
@@ -18,6 +21,8 @@ class SettingsPage extends StatefulWidget {
     required this.onGlowChanged,
     required this.powerupButtonsRight,
     required this.onPowerupPositionChanged,
+    required this.onLocaleChanged,
+    required this.locale,
   });
 
   @override
@@ -28,6 +33,7 @@ class _SettingsPageState extends State<SettingsPage> {
   late bool _isDark;
   late bool _glowEnabled;
   late bool _powerupButtonsRight;
+  late Locale _selectedLocale;
   late bool _soundEnabled;
 
   @override
@@ -36,6 +42,7 @@ class _SettingsPageState extends State<SettingsPage> {
     _isDark = widget.isDark;
     _glowEnabled = widget.glowEnabled;
     _powerupButtonsRight = widget.powerupButtonsRight;
+    _selectedLocale = widget.locale;
     _soundEnabled = AudioManager().enabled;
   }
 
@@ -43,12 +50,12 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Text(AppLocalizations.of(context)!.settings),
       ),
       body: ListView(
         children: [
           SwitchListTile(
-            title: const Text('Dark Theme'),
+            title: Text(AppLocalizations.of(context)!.darkTheme),
             value: _isDark,
             onChanged: (value) {
               setState(() {
@@ -68,7 +75,7 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           ),
           SwitchListTile(
-            title: const Text('Pulsating Glow'),
+            title: Text(AppLocalizations.of(context)!.pulsatingGlow),
             value: _glowEnabled,
             onChanged: (value) {
               setState(() {
@@ -78,7 +85,7 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           ),
           SwitchListTile(
-            title: const Text('Power-up buttons on right'),
+            title: Text(AppLocalizations.of(context)!.powerupButtonsRight),
             value: _powerupButtonsRight,
             onChanged: (value) {
               setState(() {
@@ -86,6 +93,24 @@ class _SettingsPageState extends State<SettingsPage> {
               });
               widget.onPowerupPositionChanged(value);
             },
+          ),
+          ListTile(
+            title: Text(AppLocalizations.of(context)!.language),
+            trailing: DropdownButton<Locale>(
+              value: _selectedLocale,
+              items: const [
+                DropdownMenuItem(value: Locale('en'), child: Text('English')),
+                DropdownMenuItem(value: Locale('es'), child: Text('Español')),
+              ],
+              onChanged: (locale) {
+                if (locale != null) {
+                  setState(() {
+                    _selectedLocale = locale;
+                  });
+                  widget.onLocaleChanged(locale);
+                }
+              },
+            ),
           ),
         ],
       ),

@@ -1,0 +1,45 @@
+{
+  "@@locale": "en",
+  "appTitle": "Dot Hunter",
+  "dot": "Dot",
+  "hunter": "Hunter",
+  "startGame": "Start Game",
+  "leaderboard": "Leaderboard",
+  "shop": "Shop",
+  "settings": "Settings",
+  "darkTheme": "Dark Theme",
+  "pulsatingGlow": "Pulsating Glow",
+  "powerupButtonsRight": "Power-up buttons on right",
+  "language": "Language",
+  "noScoresYet": "No scores yet",
+  "score": "Score: {score}",
+  "@score": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "extraLives": "Extra Lives: {count}/3",
+  "@extraLives": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "buyLife": "Buy +1 Life",
+  "extraPowerups": "Extra Powerups: {count}",
+  "@extraPowerups": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "buyPowerups": "Buy +2 Power Ups",
+  "gameOver": "Game Over",
+  "playAgain": "Play Again",
+  "mainMenu": "Main Menu"
+}
+

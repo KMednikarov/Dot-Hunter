@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -123,22 +124,22 @@ class _ShopPageState extends State<ShopPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Shop'),
+        title: Text(AppLocalizations.of(context)!.shop),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Extra Lives: $_extraLives/3'),
+            Text(AppLocalizations.of(context)!.extraLives(_extraLives)),
             ElevatedButton(
               onPressed: _extraLives >= 3 ? null : _buyLife,
-              child: const Text('Buy +1 Life'),
+              child: Text(AppLocalizations.of(context)!.buyLife),
             ),
             const SizedBox(height: 20),
-            Text('Extra Powerups: $_extraPowerups'),
+            Text(AppLocalizations.of(context)!.extraPowerups(_extraPowerups)),
             ElevatedButton(
               onPressed: _buyPowerup,
-              child: const Text('Buy +2 Power Ups'),
+              child: Text(AppLocalizations.of(context)!.buyPowerups),
             ),
           ],
         ),

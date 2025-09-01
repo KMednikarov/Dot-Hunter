@@ -1,0 +1,45 @@
+{
+  "@@locale": "es",
+  "appTitle": "Cazador de Puntos",
+  "dot": "Punto",
+  "hunter": "Cazador",
+  "startGame": "Iniciar Juego",
+  "leaderboard": "Clasificación",
+  "shop": "Tienda",
+  "settings": "Configuración",
+  "darkTheme": "Tema Oscuro",
+  "pulsatingGlow": "Brillo Pulsante",
+  "powerupButtonsRight": "Botones de poder a la derecha",
+  "language": "Idioma",
+  "noScoresYet": "Aún no hay puntuaciones",
+  "score": "Puntuación: {score}",
+  "@score": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "extraLives": "Vidas Extra: {count}/3",
+  "@extraLives": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "buyLife": "Comprar +1 Vida",
+  "extraPowerups": "Poderes Extra: {count}",
+  "@extraPowerups": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "buyPowerups": "Comprar +2 Poderes",
+  "gameOver": "Fin del Juego",
+  "playAgain": "Jugar de Nuevo",
+  "mainMenu": "Menú Principal"
+}
+

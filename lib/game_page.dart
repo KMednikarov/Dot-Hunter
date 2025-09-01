@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'bloc/game_cubit.dart';
@@ -120,7 +121,7 @@ class _GameViewState extends State<_GameView>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dot Hunter'),
+        title: Text(AppLocalizations.of(context)!.appTitle),
         actions: [
           BlocBuilder<GameCubit, GameState>(
             buildWhen: (p, c) => p.isPaused != c.isPaused,
@@ -143,8 +144,8 @@ class _GameViewState extends State<_GameView>
             barrierDismissible: false,
             builder: (dialogContext) {
               return AlertDialog(
-                title: const Text('Game Over'),
-                content: Text('Score: ${state.score}'),
+                title: Text(AppLocalizations.of(context)!.gameOver),
+                content: Text(AppLocalizations.of(context)!.score(state.score)),
                 actions: [
                   TextButton(
                     onPressed: () {
@@ -157,21 +158,21 @@ class _GameViewState extends State<_GameView>
                       )
                           .then((_) => gameCubit.restart());
                     },
-                    child: const Text('Leaderboard'),
+                    child: Text(AppLocalizations.of(context)!.leaderboard),
                   ),
                   TextButton(
                     onPressed: () {
                       Navigator.of(dialogContext).pop();
                       gameCubit.restart();
                     },
-                    child: const Text('Play Again'),
+                    child: Text(AppLocalizations.of(context)!.playAgain),
                   ),
                   TextButton(
                     onPressed: () {
                       Navigator.of(dialogContext).pop();
                       Navigator.of(dialogContext).pop();
                     },
-                    child: const Text('Main Menu'),
+                    child: Text(AppLocalizations.of(context)!.mainMenu),
                   ),
                 ],
               );
@@ -280,7 +281,7 @@ class _GameViewState extends State<_GameView>
                     Positioned(
                       top: 10,
                       right: 10,
-                      child: Text('Score: ${state.score}'),
+                      child: Text(AppLocalizations.of(context)!.score(state.score)),
                     ),
                     Positioned(
                       bottom: 10,

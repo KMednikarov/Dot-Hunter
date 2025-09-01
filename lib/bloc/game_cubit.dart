@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dot_hunter/analytics_service.dart';
 
 import '../achievements.dart';
 import '../audio_manager.dart';
@@ -228,6 +229,7 @@ class GameCubit extends Cubit<GameState> {
         emit(state.copyWith(isSlowActive: false));
       }
     });
+    AnalyticsService.logPowerupUse('slow');
   }
 
   void useFreezePowerup() {
@@ -245,6 +247,7 @@ class GameCubit extends Cubit<GameState> {
         emit(state.copyWith(isFreezeActive: false));
       }
     });
+    AnalyticsService.logPowerupUse('freeze');
   }
 
   void useShieldPowerup() {
@@ -255,6 +258,7 @@ class GameCubit extends Cubit<GameState> {
       isShieldActive: true,
       shieldCooldown: _powerupCooldown,
     ));
+    AnalyticsService.logPowerupUse('shield');
   }
 
   void handleTap(Offset tapPos) async {
@@ -307,6 +311,8 @@ class GameCubit extends Cubit<GameState> {
         final lives = state.lives - 1;
         if (lives <= 0) {
           await _saveScore();
+          emit(state.copyWith(lives: 0, isGameOver: true));
+          AnalyticsService.logGameOver(state.score);
           final newState = state.copyWith(lives: 0, isGameOver: true);
           emit(newState);
         } else {

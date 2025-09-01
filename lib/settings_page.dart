@@ -7,9 +7,11 @@ class SettingsPage extends StatefulWidget {
   final bool isDark;
   final bool glowEnabled;
   final bool powerupButtonsRight;
+  final bool analyticsEnabled;
   final ValueChanged<bool> onThemeChanged;
   final ValueChanged<bool> onGlowChanged;
   final ValueChanged<bool> onPowerupPositionChanged;
+  final ValueChanged<bool> onAnalyticsChanged;
   final ValueChanged<Locale> onLocaleChanged;
   final Locale locale;
 
@@ -21,6 +23,8 @@ class SettingsPage extends StatefulWidget {
     required this.onGlowChanged,
     required this.powerupButtonsRight,
     required this.onPowerupPositionChanged,
+    required this.analyticsEnabled,
+    required this.onAnalyticsChanged,
     required this.onLocaleChanged,
     required this.locale,
   });
@@ -33,6 +37,7 @@ class _SettingsPageState extends State<SettingsPage> {
   late bool _isDark;
   late bool _glowEnabled;
   late bool _powerupButtonsRight;
+  late bool _analyticsEnabled;
   late Locale _selectedLocale;
   late bool _soundEnabled;
 
@@ -42,6 +47,7 @@ class _SettingsPageState extends State<SettingsPage> {
     _isDark = widget.isDark;
     _glowEnabled = widget.glowEnabled;
     _powerupButtonsRight = widget.powerupButtonsRight;
+    _analyticsEnabled = widget.analyticsEnabled;
     _selectedLocale = widget.locale;
     _soundEnabled = AudioManager().enabled;
   }
@@ -94,6 +100,15 @@ class _SettingsPageState extends State<SettingsPage> {
               widget.onPowerupPositionChanged(value);
             },
           ),
+          SwitchListTile(
+            title: const Text('Enable Analytics'),
+            value: _analyticsEnabled,
+            onChanged: (value) {
+              setState(() {
+                _analyticsEnabled = value;
+              });
+              widget.onAnalyticsChanged(value);
+            },
           ListTile(
             title: Text(AppLocalizations.of(context)!.language),
             trailing: DropdownButton<Locale>(

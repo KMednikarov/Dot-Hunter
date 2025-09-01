@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import 'analytics_service.dart';
 import 'game_page.dart';
 import 'leaderboard_page.dart';
 import 'achievements_page.dart';
@@ -14,6 +15,8 @@ class MainMenuPage extends StatefulWidget {
   final ValueChanged<bool> onThemeChanged;
   final ValueChanged<bool> onGlowChanged;
   final ValueChanged<bool> onPowerupPositionChanged;
+  final bool analyticsEnabled;
+  final ValueChanged<bool> onAnalyticsChanged;
   final ValueChanged<Locale> onLocaleChanged;
   final Locale locale;
 
@@ -25,6 +28,8 @@ class MainMenuPage extends StatefulWidget {
     required this.isDark,
     required this.glowEnabled,
     required this.powerupButtonsRight,
+    required this.analyticsEnabled,
+    required this.onAnalyticsChanged,
     required this.onLocaleChanged,
     required this.locale,
   });
@@ -103,6 +108,7 @@ class _MainMenuPageState extends State<MainMenuPage>
             ElevatedButton(
               style: buttonStyle,
               onPressed: () {
+                AnalyticsService.logGameStart();
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (_) => GamePage(
@@ -160,10 +166,12 @@ class _MainMenuPageState extends State<MainMenuPage>
                       isDark: widget.isDark,
                       glowEnabled: widget.glowEnabled,
                       powerupButtonsRight: widget.powerupButtonsRight,
+                      analyticsEnabled: widget.analyticsEnabled,
                       onThemeChanged: widget.onThemeChanged,
                       onGlowChanged: widget.onGlowChanged,
                       onPowerupPositionChanged:
                           widget.onPowerupPositionChanged,
+                      onAnalyticsChanged: widget.onAnalyticsChanged,
                       onLocaleChanged: widget.onLocaleChanged,
                       locale: widget.locale,
                     ),

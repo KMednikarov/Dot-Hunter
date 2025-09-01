@@ -5,6 +5,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'analytics_service.dart';
+
 /// Simple shop page allowing the player to buy extra lives and power-ups.
 /// Extra lives can only be purchased up to three times while power-ups have no
 /// such limit and are bought in pairs. Purchases persist across sessions using
@@ -62,6 +64,8 @@ class _ShopPageState extends State<ShopPage> {
     setState(() {
       _products = response.productDetails;
     });
+    await prefs.setInt('extraLives', _extraLives);
+    AnalyticsService.logPurchase('extra_life');
   }
 
   Future<void> _buyLife() async {
@@ -112,6 +116,7 @@ class _ShopPageState extends State<ShopPage> {
     });
     await prefs.setInt('extraLives', _extraLives);
     await prefs.setInt('extraPowerups', _extraPowerups);
+    AnalyticsService.logPurchase('powerup');
   }
 
   @override

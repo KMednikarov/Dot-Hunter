@@ -1,9 +1,13 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../services/auth_service.dart';
 
 class Dot {
   Offset position;
@@ -294,10 +298,16 @@ class GameCubit extends Cubit<GameState> {
   }
 
   Future<void> _saveScore() async {
-    final prefs = await SharedPreferences.getInstance();
-    final scores = prefs.getStringList('scores') ?? [];
-    scores.add(state.score.toString());
-    await prefs.setStringList('scores', scores);
+    try {
+      final playerId = await AuthService.instance.getPlayerId();
+      await http.post(
+        Uri.parse('https://example.com/scores'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'player': playerId, 'score': state.score}),
+      );
+    } catch (_) {
+      // Ignore errors; scores simply won't be uploaded.
+    }
   }
 
   Future<void> _loadPurchases() async {

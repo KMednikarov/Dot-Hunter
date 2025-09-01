@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'game_page.dart';
 import 'leaderboard_page.dart';
 import 'settings_page.dart';
+import 'shop_page.dart';
 
 class MainMenuPage extends StatefulWidget {
   final bool isDark;
@@ -118,6 +119,18 @@ class _MainMenuPageState extends State<MainMenuPage>
                 );
               },
               child: const Text('Leaderboard'),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              style: buttonStyle,
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const ShopPage(),
+                  ),
+                );
+              },
+              child: const Text('Shop'),
             ),
             const SizedBox(height: 20),
             ElevatedButton(

@@ -136,6 +136,7 @@ class GameState {
 
 class GameCubit extends Cubit<GameState> {
   GameCubit() : super(GameState.initial(Random(), 6)) {
+    _loadPurchases();
     _startTicker();
   }
 
@@ -297,6 +298,22 @@ class GameCubit extends Cubit<GameState> {
     final scores = prefs.getStringList('scores') ?? [];
     scores.add(state.score.toString());
     await prefs.setStringList('scores', scores);
+  }
+
+  Future<void> _loadPurchases() async {
+    final prefs = await SharedPreferences.getInstance();
+    final extraLives = prefs.getInt('extraLives') ?? 0;
+    final extraPowerups = prefs.getInt('extraPowerups') ?? 0;
+
+    if (extraLives > 0 || extraPowerups > 0) {
+      emit(state.copyWith(
+        lives: state.lives + extraLives,
+        maxLives: state.maxLives + extraLives,
+        slowPowerupCharges: state.slowPowerupCharges + extraPowerups,
+        freezePowerupCharges: state.freezePowerupCharges + extraPowerups,
+        shieldPowerupCharges: state.shieldPowerupCharges + extraPowerups,
+      ));
+    }
   }
 
   void restart() {

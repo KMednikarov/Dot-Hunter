@@ -4,9 +4,11 @@ class SettingsPage extends StatefulWidget {
   final bool isDark;
   final bool glowEnabled;
   final bool powerupButtonsRight;
+  final bool analyticsEnabled;
   final ValueChanged<bool> onThemeChanged;
   final ValueChanged<bool> onGlowChanged;
   final ValueChanged<bool> onPowerupPositionChanged;
+  final ValueChanged<bool> onAnalyticsChanged;
 
   const SettingsPage({
     super.key,
@@ -16,6 +18,8 @@ class SettingsPage extends StatefulWidget {
     required this.onGlowChanged,
     required this.powerupButtonsRight,
     required this.onPowerupPositionChanged,
+    required this.analyticsEnabled,
+    required this.onAnalyticsChanged,
   });
 
   @override
@@ -26,6 +30,7 @@ class _SettingsPageState extends State<SettingsPage> {
   late bool _isDark;
   late bool _glowEnabled;
   late bool _powerupButtonsRight;
+  late bool _analyticsEnabled;
 
   @override
   void initState() {
@@ -33,6 +38,7 @@ class _SettingsPageState extends State<SettingsPage> {
     _isDark = widget.isDark;
     _glowEnabled = widget.glowEnabled;
     _powerupButtonsRight = widget.powerupButtonsRight;
+    _analyticsEnabled = widget.analyticsEnabled;
   }
 
   @override
@@ -71,6 +77,16 @@ class _SettingsPageState extends State<SettingsPage> {
                 _powerupButtonsRight = value;
               });
               widget.onPowerupPositionChanged(value);
+            },
+          ),
+          SwitchListTile(
+            title: const Text('Enable Analytics'),
+            value: _analyticsEnabled,
+            onChanged: (value) {
+              setState(() {
+                _analyticsEnabled = value;
+              });
+              widget.onAnalyticsChanged(value);
             },
           ),
         ],

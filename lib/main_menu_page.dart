@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'analytics_service.dart';
 import 'game_page.dart';
 import 'leaderboard_page.dart';
 import 'settings_page.dart';
@@ -12,6 +13,8 @@ class MainMenuPage extends StatefulWidget {
   final ValueChanged<bool> onThemeChanged;
   final ValueChanged<bool> onGlowChanged;
   final ValueChanged<bool> onPowerupPositionChanged;
+  final bool analyticsEnabled;
+  final ValueChanged<bool> onAnalyticsChanged;
 
   const MainMenuPage({
     super.key,
@@ -21,6 +24,8 @@ class MainMenuPage extends StatefulWidget {
     required this.isDark,
     required this.glowEnabled,
     required this.powerupButtonsRight,
+    required this.analyticsEnabled,
+    required this.onAnalyticsChanged,
   });
 
   @override
@@ -97,6 +102,7 @@ class _MainMenuPageState extends State<MainMenuPage>
             ElevatedButton(
               style: buttonStyle,
               onPressed: () {
+                AnalyticsService.logGameStart();
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (_) => GamePage(
@@ -142,10 +148,12 @@ class _MainMenuPageState extends State<MainMenuPage>
                       isDark: widget.isDark,
                       glowEnabled: widget.glowEnabled,
                       powerupButtonsRight: widget.powerupButtonsRight,
+                      analyticsEnabled: widget.analyticsEnabled,
                       onThemeChanged: widget.onThemeChanged,
                       onGlowChanged: widget.onGlowChanged,
                       onPowerupPositionChanged:
                           widget.onPowerupPositionChanged,
+                      onAnalyticsChanged: widget.onAnalyticsChanged,
                     ),
                   ),
                 );

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
+import 'analytics_service.dart';
 import 'main_menu_page.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await AnalyticsService.init();
   runApp(const MyApp());
 }
 
@@ -17,6 +20,13 @@ class _MyAppState extends State<MyApp> {
   ThemeMode _themeMode = ThemeMode.dark;
   bool _glowEnabled = true;
   bool _powerupButtonsRight = true;
+  bool _analyticsEnabled = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _analyticsEnabled = AnalyticsService.enabled;
+  }
 
   void _updateTheme(bool isDark) {
     setState(() {
@@ -36,6 +46,13 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  void _updateAnalytics(bool enabled) {
+    setState(() {
+      _analyticsEnabled = enabled;
+    });
+    AnalyticsService.setEnabled(enabled);
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -53,9 +70,11 @@ class _MyAppState extends State<MyApp> {
         onThemeChanged: _updateTheme,
         onGlowChanged: _updateGlow,
         onPowerupPositionChanged: _updatePowerupPosition,
+        onAnalyticsChanged: _updateAnalytics,
         isDark: _themeMode == ThemeMode.dark,
         glowEnabled: _glowEnabled,
         powerupButtonsRight: _powerupButtonsRight,
+        analyticsEnabled: _analyticsEnabled,
       ),
     );
   }

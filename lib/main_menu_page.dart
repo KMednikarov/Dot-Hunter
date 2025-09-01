@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'game_page.dart';
 import 'leaderboard_page.dart';
+import 'achievements_page.dart';
 import 'settings_page.dart';
 import 'shop_page.dart';
 
@@ -12,6 +14,8 @@ class MainMenuPage extends StatefulWidget {
   final ValueChanged<bool> onThemeChanged;
   final ValueChanged<bool> onGlowChanged;
   final ValueChanged<bool> onPowerupPositionChanged;
+  final ValueChanged<Locale> onLocaleChanged;
+  final Locale locale;
 
   const MainMenuPage({
     super.key,
@@ -21,6 +25,8 @@ class MainMenuPage extends StatefulWidget {
     required this.isDark,
     required this.glowEnabled,
     required this.powerupButtonsRight,
+    required this.onLocaleChanged,
+    required this.locale,
   });
 
   @override
@@ -63,7 +69,7 @@ class _MainMenuPageState extends State<MainMenuPage>
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Dot ',
+                  '${AppLocalizations.of(context)!.dot} ',
                   style: TextStyle(
                     fontSize: 48,
                     fontWeight: FontWeight.bold,
@@ -76,7 +82,7 @@ class _MainMenuPageState extends State<MainMenuPage>
                   builder: (context, child) {
                     final blur = 10 + (_controller.value * 10);
                     return Text(
-                      'Hunter',
+                      AppLocalizations.of(context)!.hunter,
                       style: TextStyle(
                         fontSize: 48,
                         fontWeight: FontWeight.bold,
@@ -106,7 +112,7 @@ class _MainMenuPageState extends State<MainMenuPage>
                   ),
                 );
               },
-              child: const Text('Start Game'),
+              child: Text(AppLocalizations.of(context)!.startGame),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -118,7 +124,19 @@ class _MainMenuPageState extends State<MainMenuPage>
                   ),
                 );
               },
-              child: const Text('Leaderboard'),
+              child: Text(AppLocalizations.of(context)!.leaderboard),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              style: buttonStyle,
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const AchievementsPage(),
+                  ),
+                );
+              },
+              child: const Text('Achievements'),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -130,7 +148,7 @@ class _MainMenuPageState extends State<MainMenuPage>
                   ),
                 );
               },
-              child: const Text('Shop'),
+              child: Text(AppLocalizations.of(context)!.shop),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -146,11 +164,13 @@ class _MainMenuPageState extends State<MainMenuPage>
                       onGlowChanged: widget.onGlowChanged,
                       onPowerupPositionChanged:
                           widget.onPowerupPositionChanged,
+                      onLocaleChanged: widget.onLocaleChanged,
+                      locale: widget.locale,
                     ),
                   ),
                 );
               },
-              child: const Text('Settings'),
+              child: Text(AppLocalizations.of(context)!.settings),
             ),
           ],
         ),

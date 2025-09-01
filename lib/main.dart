@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'analytics_service.dart';
+import 'audio_manager.dart';
 import 'main_menu_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AnalyticsService.init();
+  await AudioManager().init();
   runApp(const MyApp());
 }
 
@@ -27,6 +30,7 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     _analyticsEnabled = AnalyticsService.enabled;
   }
+  Locale _locale = const Locale('en');
 
   void _updateTheme(bool isDark) {
     setState(() {
@@ -51,12 +55,19 @@ class _MyAppState extends State<MyApp> {
       _analyticsEnabled = enabled;
     });
     AnalyticsService.setEnabled(enabled);
+  void _updateLocale(Locale locale) {
+    setState(() {
+      _locale = locale;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Dot Hunter',
+      onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
+      locale: _locale,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData(
         brightness: Brightness.light,
         scaffoldBackgroundColor: Colors.white,
@@ -71,6 +82,8 @@ class _MyAppState extends State<MyApp> {
         onGlowChanged: _updateGlow,
         onPowerupPositionChanged: _updatePowerupPosition,
         onAnalyticsChanged: _updateAnalytics,
+        onLocaleChanged: _updateLocale,
+        locale: _locale,
         isDark: _themeMode == ThemeMode.dark,
         glowEnabled: _glowEnabled,
         powerupButtonsRight: _powerupButtonsRight,

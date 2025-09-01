@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:share_plus/share_plus.dart';
 
 import 'bloc/game_cubit.dart';
 import 'leaderboard_page.dart';
@@ -31,6 +35,7 @@ class _GameViewState extends State<_GameView>
     with SingleTickerProviderStateMixin {
   late final AnimationController _glowController;
   static const double _cooldownDuration = 5.0;
+  bool _showTutorial = false;
 
   @override
   void initState() {
@@ -42,12 +47,23 @@ class _GameViewState extends State<_GameView>
     if (widget.glowEnabled) {
       _glowController.repeat(reverse: true);
     }
+    _checkTutorial();
   }
 
   @override
   void dispose() {
     _glowController.dispose();
     super.dispose();
+  }
+
+  Future<void> _checkTutorial() async {
+    final prefs = await SharedPreferences.getInstance();
+    final seen = prefs.getBool('tutorialShown') ?? false;
+    if (!seen) {
+      setState(() {
+        _showTutorial = true;
+      });
+    }
   }
 
   Widget _buildPowerButton({
@@ -107,7 +123,7 @@ class _GameViewState extends State<_GameView>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dot Hunter'),
+        title: Text(AppLocalizations.of(context)!.appTitle),
         actions: [
           BlocBuilder<GameCubit, GameState>(
             buildWhen: (p, c) => p.isPaused != c.isPaused,
@@ -130,8 +146,8 @@ class _GameViewState extends State<_GameView>
             barrierDismissible: false,
             builder: (dialogContext) {
               return AlertDialog(
-                title: const Text('Game Over'),
-                content: Text('Score: ${state.score}'),
+                title: Text(AppLocalizations.of(context)!.gameOver),
+                content: Text(AppLocalizations.of(context)!.score(state.score)),
                 actions: [
                   TextButton(
                     onPressed: () {
@@ -144,21 +160,31 @@ class _GameViewState extends State<_GameView>
                       )
                           .then((_) => gameCubit.restart());
                     },
-                    child: const Text('Leaderboard'),
+                    child: Text(AppLocalizations.of(context)!.leaderboard),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      const storeLink =
+                          'https://play.google.com/store/apps/details?id=com.example.dot_hunter';
+                      Share.share(
+                        'I scored ${state.score} in Dot Hunter! Try it: $storeLink',
+                      );
+                    },
+                    child: const Text('Share'),
                   ),
                   TextButton(
                     onPressed: () {
                       Navigator.of(dialogContext).pop();
                       gameCubit.restart();
                     },
-                    child: const Text('Play Again'),
+                    child: Text(AppLocalizations.of(context)!.playAgain),
                   ),
                   TextButton(
                     onPressed: () {
                       Navigator.of(dialogContext).pop();
                       Navigator.of(dialogContext).pop();
                     },
-                    child: const Text('Main Menu'),
+                    child: Text(AppLocalizations.of(context)!.mainMenu),
                   ),
                 ],
               );
@@ -219,6 +245,35 @@ class _GameViewState extends State<_GameView>
                         ),
                       ),
                     ),
+                    if (_showTutorial)
+                      Positioned.fill(
+                        child: Container(
+                          color: Colors.black54,
+                          child: Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text(
+                                  'Tap the red dot to score.\nAvoid others and use power-ups.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                const SizedBox(height: 20),
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    final prefs = await SharedPreferences.getInstance();
+                                    await prefs.setBool('tutorialShown', true);
+                                    setState(() {
+                                      _showTutorial = false;
+                                    });
+                                  },
+                                  child: const Text('Got it!'),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     Positioned(
                       top: 10,
                       left: 10,
@@ -238,7 +293,7 @@ class _GameViewState extends State<_GameView>
                     Positioned(
                       top: 10,
                       right: 10,
-                      child: Text('Score: ${state.score}'),
+                      child: Text(AppLocalizations.of(context)!.score(state.score)),
                     ),
                     Positioned(
                       bottom: 10,

@@ -74,11 +74,14 @@ class _GameViewState extends State<_GameView>
               children: [
                 Icon(icon),
                 Positioned(
-                  right: -6,
-                  bottom: -6,
+                  right: 0,
+                  bottom: 0,
                   child: Text(
                     '$charges',
-                    style: const TextStyle(fontSize: 12),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ],

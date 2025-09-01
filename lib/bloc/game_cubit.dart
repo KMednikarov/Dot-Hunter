@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../achievements.dart';
+import '../audio_manager.dart';
 
 class Dot {
   Offset position;
@@ -142,7 +143,10 @@ class GameState {
 }
 
 class GameCubit extends Cubit<GameState> {
+  final AudioManager _audio = AudioManager();
+
   GameCubit() : super(GameState.initial(Random(), 6)) {
+    _audio.playBackgroundMusic();
     _loadPurchases();
     _loadAchievements();
     _startTicker();
@@ -267,6 +271,7 @@ class GameCubit extends Cubit<GameState> {
     }
 
     if (hitRed) {
+      _audio.playTapSound();
       final newCount = state.speedIncreaseCount + 1;
       var newDots = state.dots;
       if (newCount % 2 == 0) {
@@ -294,6 +299,7 @@ class GameCubit extends Cubit<GameState> {
       emit(newState);
       _checkAchievements(newState);
     } else {
+      _audio.playAlertSound();
       if (state.isShieldActive) {
         final newState = state.copyWith(isShieldActive: false);
         emit(newState);
@@ -369,6 +375,7 @@ class GameCubit extends Cubit<GameState> {
     _slowTimer?.cancel();
     _freezeTimer?.cancel();
     emit(GameState.initial(_rand, _dotCount));
+    _audio.playBackgroundMusic();
   }
 
   void togglePause() {

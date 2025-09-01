@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
+import 'audio_manager.dart';
 import 'main_menu_page.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await AudioManager().init();
   runApp(const MyApp());
 }
 

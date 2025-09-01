@@ -14,3 +14,10 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+## In-App Purchases
+
+This project uses the [`in_app_purchase`](https://pub.dev/packages/in_app_purchase)
+plugin to sell consumable items. Create corresponding product identifiers in the
+Google Play Console or App Store Connect and keep them in sync with the IDs used
+in `lib/shop_page.dart`.

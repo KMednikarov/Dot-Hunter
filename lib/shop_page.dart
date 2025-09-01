@@ -3,7 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// Simple shop page allowing the player to buy extra lives and power-ups.
 /// Extra lives can only be purchased up to three times while power-ups have no
-/// such limit. Purchases persist across sessions using [SharedPreferences].
+/// such limit and are bought in pairs. Purchases persist across sessions using
+/// [SharedPreferences].
 class ShopPage extends StatefulWidget {
   const ShopPage({super.key});
 
@@ -41,7 +42,7 @@ class _ShopPageState extends State<ShopPage> {
   Future<void> _buyPowerup() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _extraPowerups++;
+      _extraPowerups += 2;
     });
     await prefs.setInt('extraPowerups', _extraPowerups);
   }
@@ -65,7 +66,7 @@ class _ShopPageState extends State<ShopPage> {
             Text('Extra Powerups: $_extraPowerups'),
             ElevatedButton(
               onPressed: _buyPowerup,
-              child: const Text('Buy +1 Power Up'),
+              child: const Text('Buy +2 Power Ups'),
             ),
           ],
         ),

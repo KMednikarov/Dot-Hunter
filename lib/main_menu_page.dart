@@ -3,6 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'game_page.dart';
 import 'leaderboard_page.dart';
+import 'achievements_page.dart';
 import 'settings_page.dart';
 import 'shop_page.dart';
 
@@ -124,6 +125,18 @@ class _MainMenuPageState extends State<MainMenuPage>
                 );
               },
               child: Text(AppLocalizations.of(context)!.leaderboard),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              style: buttonStyle,
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const AchievementsPage(),
+                  ),
+                );
+              },
+              child: const Text('Achievements'),
             ),
             const SizedBox(height: 20),
             ElevatedButton(

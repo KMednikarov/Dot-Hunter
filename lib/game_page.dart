@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'bloc/game_cubit.dart';
 import 'leaderboard_page.dart';
@@ -32,6 +33,7 @@ class _GameViewState extends State<_GameView>
     with SingleTickerProviderStateMixin {
   late final AnimationController _glowController;
   static const double _cooldownDuration = 5.0;
+  bool _showTutorial = false;
 
   @override
   void initState() {
@@ -43,12 +45,23 @@ class _GameViewState extends State<_GameView>
     if (widget.glowEnabled) {
       _glowController.repeat(reverse: true);
     }
+    _checkTutorial();
   }
 
   @override
   void dispose() {
     _glowController.dispose();
     super.dispose();
+  }
+
+  Future<void> _checkTutorial() async {
+    final prefs = await SharedPreferences.getInstance();
+    final seen = prefs.getBool('tutorialShown') ?? false;
+    if (!seen) {
+      setState(() {
+        _showTutorial = true;
+      });
+    }
   }
 
   Widget _buildPowerButton({
@@ -220,6 +233,35 @@ class _GameViewState extends State<_GameView>
                         ),
                       ),
                     ),
+                    if (_showTutorial)
+                      Positioned.fill(
+                        child: Container(
+                          color: Colors.black54,
+                          child: Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text(
+                                  'Tap the red dot to score.\nAvoid others and use power-ups.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                const SizedBox(height: 20),
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    final prefs = await SharedPreferences.getInstance();
+                                    await prefs.setBool('tutorialShown', true);
+                                    setState(() {
+                                      _showTutorial = false;
+                                    });
+                                  },
+                                  child: const Text('Got it!'),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     Positioned(
                       top: 10,
                       left: 10,

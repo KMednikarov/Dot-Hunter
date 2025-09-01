@@ -36,6 +36,9 @@ dependencies:
   cupertino_icons: ^1.0.8
   shared_preferences: ^2.2.2
   flutter_bloc: ^8.1.3
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.18.1
 
 dev_dependencies:
   flutter_test:
@@ -58,6 +61,11 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  generate: true
+  gen-l10n:
+    arb-dir: l10n
+    template-arb-file: app_en.arb
+    output-localization-file: app_localizations.dart
 
   # To add assets to your application, add an assets section, like this:
   # assets:

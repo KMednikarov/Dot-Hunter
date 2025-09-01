@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'main_menu_page.dart';
 
@@ -17,6 +18,7 @@ class _MyAppState extends State<MyApp> {
   ThemeMode _themeMode = ThemeMode.dark;
   bool _glowEnabled = true;
   bool _powerupButtonsRight = true;
+  Locale _locale = const Locale('en');
 
   void _updateTheme(bool isDark) {
     setState(() {
@@ -36,10 +38,19 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  void _updateLocale(Locale locale) {
+    setState(() {
+      _locale = locale;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Dot Hunter',
+      onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
+      locale: _locale,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData(
         brightness: Brightness.light,
         scaffoldBackgroundColor: Colors.white,
@@ -53,6 +64,8 @@ class _MyAppState extends State<MyApp> {
         onThemeChanged: _updateTheme,
         onGlowChanged: _updateGlow,
         onPowerupPositionChanged: _updatePowerupPosition,
+        onLocaleChanged: _updateLocale,
+        locale: _locale,
         isDark: _themeMode == ThemeMode.dark,
         glowEnabled: _glowEnabled,
         powerupButtonsRight: _powerupButtonsRight,

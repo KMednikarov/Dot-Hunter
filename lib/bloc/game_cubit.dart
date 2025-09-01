@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../achievements.dart';
+
 class Dot {
   Offset position;
   Offset velocity;
@@ -37,6 +39,7 @@ class GameState {
   final double slowCooldown;
   final double freezeCooldown;
   final double shieldCooldown;
+  final double elapsedTime;
 
   GameState({
     required this.dots,
@@ -56,6 +59,7 @@ class GameState {
     required this.slowCooldown,
     required this.freezeCooldown,
     required this.shieldCooldown,
+    required this.elapsedTime,
   });
 
   factory GameState.initial(Random rand, int count) {
@@ -88,6 +92,7 @@ class GameState {
       slowCooldown: 0,
       freezeCooldown: 0,
       shieldCooldown: 0,
+      elapsedTime: 0,
     );
   }
 
@@ -109,6 +114,7 @@ class GameState {
     double? slowCooldown,
     double? freezeCooldown,
     double? shieldCooldown,
+    double? elapsedTime,
   }) {
     return GameState(
       dots: dots ?? this.dots,
@@ -130,6 +136,7 @@ class GameState {
       slowCooldown: slowCooldown ?? this.slowCooldown,
       freezeCooldown: freezeCooldown ?? this.freezeCooldown,
       shieldCooldown: shieldCooldown ?? this.shieldCooldown,
+      elapsedTime: elapsedTime ?? this.elapsedTime,
     );
   }
 }
@@ -137,6 +144,7 @@ class GameState {
 class GameCubit extends Cubit<GameState> {
   GameCubit() : super(GameState.initial(Random(), 6)) {
     _loadPurchases();
+    _loadAchievements();
     _startTicker();
   }
 
@@ -147,6 +155,7 @@ class GameCubit extends Cubit<GameState> {
   Timer? _slowTimer;
   Timer? _freezeTimer;
   static const double _powerupCooldown = 5.0;
+  final Set<String> _completedAchievements = {};
 
   void _startTicker() {
     _timer = Timer.periodic(const Duration(milliseconds: 16), (_) => _onTick());
@@ -188,12 +197,16 @@ class GameCubit extends Cubit<GameState> {
     final newShieldCooldown = state.shieldCooldown > 0
         ? (state.shieldCooldown - 0.016).clamp(0.0, _powerupCooldown).toDouble()
         : 0.0;
-    emit(state.copyWith(
+    final newElapsed = state.elapsedTime + 0.016;
+    final newState = state.copyWith(
       dots: newDots,
       slowCooldown: newSlowCooldown,
       freezeCooldown: newFreezeCooldown,
       shieldCooldown: newShieldCooldown,
-    ));
+      elapsedTime: newElapsed,
+    );
+    emit(newState);
+    _checkAchievements(newState);
   }
 
   void useSlowPowerup() {
@@ -272,22 +285,27 @@ class GameCubit extends Cubit<GameState> {
           );
         }).toList();
       }
-      emit(state.copyWith(
+      final newState = state.copyWith(
         score: state.score + 1,
         speedMultiplier: state.speedMultiplier * 1.05,
         speedIncreaseCount: newCount,
         dots: newDots,
-      ));
+      );
+      emit(newState);
+      _checkAchievements(newState);
     } else {
       if (state.isShieldActive) {
-        emit(state.copyWith(isShieldActive: false));
+        final newState = state.copyWith(isShieldActive: false);
+        emit(newState);
       } else {
         final lives = state.lives - 1;
         if (lives <= 0) {
           await _saveScore();
-          emit(state.copyWith(lives: 0, isGameOver: true));
+          final newState = state.copyWith(lives: 0, isGameOver: true);
+          emit(newState);
         } else {
-          emit(state.copyWith(lives: lives));
+          final newState = state.copyWith(lives: lives);
+          emit(newState);
         }
       }
     }
@@ -313,6 +331,37 @@ class GameCubit extends Cubit<GameState> {
         freezePowerupCharges: state.freezePowerupCharges + extraPowerups,
         shieldPowerupCharges: state.shieldPowerupCharges + extraPowerups,
       ));
+    }
+  }
+
+  Future<void> _loadAchievements() async {
+    final prefs = await SharedPreferences.getInstance();
+    _completedAchievements
+        .addAll(prefs.getStringList('achievements') ?? const []);
+  }
+
+  Future<void> _saveAchievements() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(
+        'achievements', _completedAchievements.toList());
+  }
+
+  void _checkAchievements(GameState state) {
+    for (final achievement in achievements) {
+      if (_completedAchievements.contains(achievement.id)) continue;
+      bool achieved = false;
+      switch (achievement.type) {
+        case AchievementType.score:
+          achieved = state.score >= achievement.threshold;
+          break;
+        case AchievementType.time:
+          achieved = state.elapsedTime >= achievement.threshold;
+          break;
+      }
+      if (achieved) {
+        _completedAchievements.add(achievement.id);
+        unawaited(_saveAchievements());
+      }
     }
   }
 

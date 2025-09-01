@@ -10,11 +10,15 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:dot_hunter/main.dart';
 import 'package:dot_hunter/bloc/game_cubit.dart';
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
   testWidgets('Game starts with score 0 and 5 lives', (WidgetTester tester) async {
     await tester.pumpWidget(const MyApp());
     await tester.tap(find.text('Start Game'));

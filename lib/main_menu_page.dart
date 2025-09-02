@@ -4,6 +4,8 @@ import 'game_page.dart';
 import 'leaderboard_page.dart';
 import 'settings_page.dart';
 import 'shop_page.dart';
+import 'tutorial_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MainMenuPage extends StatefulWidget {
   final bool isDark;
@@ -38,12 +40,25 @@ class _MainMenuPageState extends State<MainMenuPage>
       vsync: this,
       duration: const Duration(seconds: 1),
     )..repeat(reverse: true);
+    _checkFirstRun();
   }
 
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  Future<void> _checkFirstRun() async {
+    final prefs = await SharedPreferences.getInstance();
+    final seen = prefs.getBool('hasSeenTutorial') ?? false;
+    if (!seen && mounted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const TutorialPage()),
+        );
+      });
+    }
   }
 
   @override

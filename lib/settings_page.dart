@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'tutorial_page.dart';
 
 class SettingsPage extends StatefulWidget {
   final bool isDark;
@@ -71,6 +72,15 @@ class _SettingsPageState extends State<SettingsPage> {
                 _powerupButtonsRight = value;
               });
               widget.onPowerupPositionChanged(value);
+            },
+          ),
+          ListTile(
+            title: const Text('Replay Tutorial'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const TutorialPage()),
+              );
             },
           ),
         ],

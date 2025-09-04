@@ -1,9 +1,29 @@
 import 'package:flutter/material.dart';
 
 import 'main_menu_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+var kDebugMode = true;
 
 void main() {
+WidgetsFlutterBinding.ensureInitialized(); // <-- required
+
+  // OPTIONAL: dev-only fresh run wipe
+  resetApp();
   runApp(const MyApp());
+}
+
+Future<void> resetApp() async {
+  if (kDebugMode) {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+
+    // If you use Hive/SQLite, wipe them too:
+    // await Hive.initFlutter();
+    // await Hive.deleteFromDisk();
+
+    // final dbPath = await getDatabasesPath();
+    // await databaseFactory.deleteDatabase(p.join(dbPath, 'app.db'));
+  }
 }
 
 class MyApp extends StatefulWidget {

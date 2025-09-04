@@ -17,6 +17,24 @@ class _TutorialPageState extends State<TutorialPage> {
   int _lives = 3;
   bool _poweredUp = false;
 
+  final List<Map<String, dynamic>> _steps = const [
+    {
+      'text': 'Tap the red dots to score points.',
+      'icon': Icons.circle,
+      'color': Colors.red,
+    },
+    {
+      'text': 'Avoid the blue dots or lose a life.',
+      'icon': Icons.circle,
+      'color': Colors.blue,
+    },
+    {
+      'text': 'Use power-ups to gain an advantage!',
+      'icon': Icons.flash_on,
+      'color': Colors.orange,
+    },
+  ];
+
   Future<void> _complete() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('hasSeenTutorial', true);
@@ -47,6 +65,38 @@ class _TutorialPageState extends State<TutorialPage> {
                 _buildAvoidStep(),
                 _buildPowerStep(),
               ],
+//             child: PageView.builder(
+//               controller: _controller,
+//               itemCount: _steps.length,
+//               onPageChanged: (i) {
+//                 setState(() => _index = i);
+//               },
+//               itemBuilder: (context, i) {
+//                 final step = _steps[i];
+//                 return Column(
+//                   mainAxisAlignment: MainAxisAlignment.center,
+//                   children: [
+//                     Expanded(
+//                       child: Padding(
+//                         padding: const EdgeInsets.all(16),
+//                         child: Icon(
+//                           step['icon'] as IconData,
+//                           size: 120,
+//                           color: step['color'] as Color,
+//                         ),
+//                       ),
+//                     ),
+//                     Padding(
+//                       padding: const EdgeInsets.all(16),
+//                       child: Text(
+//                         step['text']!,
+//                         textAlign: TextAlign.center,
+//                         style: const TextStyle(fontSize: 18),
+//                       ),
+//                     ),
+//                   ],
+//                 );
+//               },
             ),
           ),
           Padding(
@@ -55,6 +105,7 @@ class _TutorialPageState extends State<TutorialPage> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: _index == 2
+//                 onPressed: _index == _steps.length - 1
                     ? _complete
                     : () => _controller.nextPage(
                           duration: const Duration(milliseconds: 300),

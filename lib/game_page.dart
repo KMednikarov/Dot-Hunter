@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 import 'bloc/game_cubit.dart';
 import 'leaderboard_page.dart';
@@ -31,6 +32,9 @@ class _GameViewState extends State<_GameView>
     with SingleTickerProviderStateMixin {
   late final AnimationController _glowController;
   static const double _cooldownDuration = 5.0;
+  late final AudioPlayer _bgmPlayer;
+  late final AudioPlayer _tapPlayer;
+  late final AudioPlayer _losePlayer;
 
   @override
   void initState() {
@@ -42,10 +46,17 @@ class _GameViewState extends State<_GameView>
     if (widget.glowEnabled) {
       _glowController.repeat(reverse: true);
     }
+    _bgmPlayer = AudioPlayer()..setReleaseMode(ReleaseMode.loop);
+    _tapPlayer = AudioPlayer();
+    _losePlayer = AudioPlayer();
+    _bgmPlayer.play(AssetSource('audio/background.mp3'));
   }
 
   @override
   void dispose() {
+    _bgmPlayer.dispose();
+    _tapPlayer.dispose();
+    _losePlayer.dispose();
     _glowController.dispose();
     super.dispose();
   }
@@ -120,51 +131,67 @@ class _GameViewState extends State<_GameView>
           ),
         ],
       ),
-      body: BlocListener<GameCubit, GameState>(
-        listenWhen: (previous, current) =>
-            !previous.isGameOver && current.isGameOver,
-        listener: (context, state) {
-          final gameCubit = context.read<GameCubit>();
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (dialogContext) {
-              return AlertDialog(
-                title: const Text('Game Over'),
-                content: Text('Score: ${state.score}'),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(dialogContext).pop();
-                      Navigator.of(dialogContext)
-                          .push(
-                        MaterialPageRoute(
-                          builder: (_) => const LeaderboardPage(),
-                        ),
-                      )
-                          .then((_) => gameCubit.restart());
-                    },
-                    child: const Text('Leaderboard'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(dialogContext).pop();
-                      gameCubit.restart();
-                    },
-                    child: const Text('Play Again'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(dialogContext).pop();
-                      Navigator.of(dialogContext).pop();
-                    },
-                    child: const Text('Main Menu'),
-                  ),
-                ],
+      body: MultiBlocListener(
+        listeners: [
+          BlocListener<GameCubit, GameState>(
+            listenWhen: (previous, current) =>
+                !previous.isGameOver && current.isGameOver,
+            listener: (context, state) {
+              final gameCubit = context.read<GameCubit>();
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (dialogContext) {
+                  return AlertDialog(
+                    title: const Text('Game Over'),
+                    content: Text('Score: ${state.score}'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(dialogContext).pop();
+                          Navigator.of(dialogContext)
+                              .push(
+                            MaterialPageRoute(
+                              builder: (_) => const LeaderboardPage(),
+                            ),
+                          )
+                              .then((_) => gameCubit.restart());
+                        },
+                        child: const Text('Leaderboard'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(dialogContext).pop();
+                          gameCubit.restart();
+                        },
+                        child: const Text('Play Again'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(dialogContext).pop();
+                          Navigator.of(dialogContext).pop();
+                        },
+                        child: const Text('Main Menu'),
+                      ),
+                    ],
+                  );
+                },
               );
             },
-          );
-        },
+          ),
+          BlocListener<GameCubit, GameState>(
+            listenWhen: (previous, current) => current.score > previous.score,
+            listener: (context, state) {
+              _tapPlayer.play(AssetSource('audio/tap.mp3'));
+            },
+          ),
+          BlocListener<GameCubit, GameState>(
+            listenWhen: (previous, current) => current.lives < previous.lives,
+            listener: (context, state) {
+              _losePlayer.play(AssetSource('audio/lose_life.mp3'));
+            },
+          ),
+        ],
         child: BlocBuilder<GameCubit, GameState>(
           builder: (context, state) {
             return LayoutBuilder(

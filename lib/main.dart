@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 
+import 'firebase_options.dart';
 import 'main_menu_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 var kDebugMode = true;
 
-void main() {
-WidgetsFlutterBinding.ensureInitialized(); // <-- required
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   // OPTIONAL: dev-only fresh run wipe
-  resetApp();
+  await resetApp();
   runApp(const MyApp());
 }
 

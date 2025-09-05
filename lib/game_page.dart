@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:share_plus/share_plus.dart';
 
 import 'bloc/game_cubit.dart';
 import 'leaderboard_page.dart';
@@ -158,6 +159,11 @@ class _GameViewState extends State<_GameView>
                               .then((_) => gameCubit.restart());
                         },
                         child: const Text('Leaderboard'),
+                      ),
+                      TextButton(
+                        onPressed: () =>
+                            Share.share('I scored ${state.score} in Dot Hunter!'),
+                        child: const Text('Share'),
                       ),
                       TextButton(
                         onPressed: () {

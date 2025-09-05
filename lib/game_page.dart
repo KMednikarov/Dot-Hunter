@@ -168,13 +168,6 @@ class _GameViewState extends State<_GameView>
                       TextButton(
                         onPressed: () {
                           Navigator.of(dialogContext).pop();
-                          Share.share('I scored ${state.score} in Dot Hunter!');
-                        },
-                        child: const Text('Share'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(dialogContext).pop();
                           gameCubit.restart();
                         },
                         child: const Text('Play Again'),

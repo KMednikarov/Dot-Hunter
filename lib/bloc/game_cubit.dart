@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Dot {
@@ -138,6 +139,7 @@ class GameCubit extends Cubit<GameState> {
   GameCubit() : super(GameState.initial(Random(), 6)) {
     _loadPurchases();
     _startTicker();
+    _analytics.logEvent(name: 'level_start');
   }
 
   final Random _rand = Random();
@@ -146,6 +148,7 @@ class GameCubit extends Cubit<GameState> {
   Timer? _timer;
   Timer? _slowTimer;
   Timer? _freezeTimer;
+  final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
   static const double _powerupCooldown = 5.0;
 
   void _startTicker() {
@@ -211,6 +214,8 @@ class GameCubit extends Cubit<GameState> {
         emit(state.copyWith(isSlowActive: false));
       }
     });
+
+    _analytics.logEvent(name: 'power_up_used', parameters: {'type': 'slow'});
   }
 
   void useFreezePowerup() {
@@ -228,6 +233,8 @@ class GameCubit extends Cubit<GameState> {
         emit(state.copyWith(isFreezeActive: false));
       }
     });
+
+    _analytics.logEvent(name: 'power_up_used', parameters: {'type': 'freeze'});
   }
 
   void useShieldPowerup() {
@@ -238,6 +245,8 @@ class GameCubit extends Cubit<GameState> {
       isShieldActive: true,
       shieldCooldown: _powerupCooldown,
     ));
+
+    _analytics.logEvent(name: 'power_up_used', parameters: {'type': 'shield'});
   }
 
   void handleTap(Offset tapPos) async {
@@ -285,6 +294,8 @@ class GameCubit extends Cubit<GameState> {
         final lives = state.lives - 1;
         if (lives <= 0) {
           await _saveScore();
+          await _analytics
+              .logEvent(name: 'level_end', parameters: {'score': state.score});
           emit(state.copyWith(lives: 0, isGameOver: true));
         } else {
           emit(state.copyWith(lives: lives));
@@ -320,6 +331,7 @@ class GameCubit extends Cubit<GameState> {
     _slowTimer?.cancel();
     _freezeTimer?.cancel();
     emit(GameState.initial(_rand, _dotCount));
+    _analytics.logEvent(name: 'level_start');
   }
 
   void togglePause() {

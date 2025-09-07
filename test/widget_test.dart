@@ -13,34 +13,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
-import 'package:flutter/services.dart';
 
 import 'package:dot_hunter/main.dart';
 import 'package:dot_hunter/bloc/game_cubit.dart';
-
-/// Mocks the Firebase core platform channel for unit tests.
-void setupFirebaseCoreMocks() {
-  MethodChannelFirebase.channel
-      .setMockMethodCallHandler((MethodCall methodCall) async {
-    if (methodCall.method == 'Firebase#initializeCore') {
-      return [
-        {
-          'name': defaultFirebaseAppName,
-          'options': <String, dynamic>{},
-          'pluginConstants': <String, dynamic>{},
-        }
-      ];
-    }
-    if (methodCall.method == 'Firebase#initializeApp') {
-      return {
-        'name': methodCall.arguments['appName'],
-        'options': methodCall.arguments['options'],
-        'pluginConstants': <String, dynamic>{},
-      };
-    }
-    return null;
-  });
-}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

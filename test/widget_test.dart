@@ -17,6 +17,10 @@ import 'package:firebase_core_platform_interface/firebase_core_platform_interfac
 import 'package:dot_hunter/main.dart';
 import 'package:dot_hunter/bloc/game_cubit.dart';
 
+void setupFirebaseCoreMocks() {
+  FirebasePlatform.instance = MethodChannelFirebase();
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setupFirebaseCoreMocks();
